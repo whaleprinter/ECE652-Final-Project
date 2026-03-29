@@ -1,0 +1,28 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Fri Mar 27 16:31:17 2026
+[*]
+[dumpfile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/warp_v_cpu.vcd"
+[dumpfile_mtime] "Fri Mar 27 16:13:57 2026"
+[dumpfile_size] 272598
+[savefile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/Warp_V_Core.gtkw"
+[timestart] 0
+[size] 1333 600
+[pos] -1 -1
+*-17.000000 245100 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[treeopen] tb_warp_v_core.
+[sst_width] 255
+[signals_width] 274
+[sst_expanded] 1
+[sst_vpaned_height] 159
+@28
+tb_warp_v_core.dmem_we_out
+tb_warp_v_core.reset
+@22
+tb_warp_v_core.dmem_wdata_out[31:0]
+@28
+tb_warp_v_core.dmem_stall_in
+@22
+tb_warp_v_core.dmem_addr_out[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

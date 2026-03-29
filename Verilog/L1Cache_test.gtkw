@@ -1,0 +1,50 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sun Mar 29 16:45:21 2026
+[*]
+[dumpfile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/icache_waves.vcd"
+[dumpfile_mtime] "Sun Mar 29 16:44:30 2026"
+[dumpfile_size] 761
+[savefile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/L1Cache_test.gtkw"
+[timestart] 0
+[size] 1333 600
+[pos] 343 -1
+*-15.000000 41600 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[treeopen] tb_L1I_cache.
+[sst_width] 255
+[signals_width] 246
+[sst_expanded] 1
+[sst_vpaned_height] 159
+@28
+tb_L1I_cache.uut.clk
+@22
+tb_L1I_cache.uut.address[31:0]
+tb_L1I_cache.uut.data[31:0]
+[pattern_trace] 1
+[pattern_trace] 0
