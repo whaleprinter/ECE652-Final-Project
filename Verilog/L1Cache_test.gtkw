@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Sun Mar 29 16:45:21 2026
+[*] Sun Mar 29 17:09:16 2026
 [*]
 [dumpfile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/icache_waves.vcd"
-[dumpfile_mtime] "Sun Mar 29 16:44:30 2026"
-[dumpfile_size] 761
+[dumpfile_mtime] "Sun Mar 29 17:01:03 2026"
+[dumpfile_size] 857
 [savefile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/L1Cache_test.gtkw"
 [timestart] 0
 [size] 1333 600
-[pos] 343 -1
-*-15.000000 41600 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[pos] 342 -1
+*-15.000000 42400 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
 [markername] CC

@@ -50,12 +50,12 @@ module tb_L1I_cache();
 
         // Test 4: Jump to a higher address 0x10 (Word 4)
         @(negedge clk);
-        address = 32'h0000_0010;
+        address = 32'd12;
 
         // Test 5: Check boundary / unaligned edge case (though PC shouldn't normally do this)
         // If address is 0x05, address[11:2] still evaluates to 1 (Word 1).
         @(negedge clk);
-        address = 32'h0000_0005;
+        address = 32'd16;
 
         // Wait a couple of clocks and finish
         repeat(2) @(negedge clk);
