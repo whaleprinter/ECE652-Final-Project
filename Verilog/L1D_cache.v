@@ -18,7 +18,7 @@ module L1D_cache(
 
     // Write logic
     always @(posedge clk) begin 
-        if (ctrl_write_enable) begin 
+        if (ctrl_write_enable) begin    
             cache[index] <= ctrl_write_data; // for cache-to-cahce transfers, write the whole block at once
         end else if (word_write_enable) begin 
             case (offset) // For writes from the CPU, only write the correct word within the block

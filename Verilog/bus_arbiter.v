@@ -6,7 +6,7 @@ module bus_arbiter(
     input wire C0_request,
     input wire [31:0] C0_address,
     input wire C0_write_enable,
-    output reg C0_ready, // Also call this grant
+    output reg C0_grant,
     output reg C0_stall,
 
     // Logic when core 0 is asked to check its L1
@@ -28,10 +28,21 @@ module bus_arbiter(
     output reg [31:0] C1_L1_address,
     input wire C1_L1_ready,
     input wire C1_L1_hit,
-    input wire C1_L1_dirty 
+    input wire C1_L1_dirty,
 
 
-    // TODO: ADD L2 INTERFACE 
+    // L2 Interface. ALWAYS GOING TO BE MOVING AN ENTIRE BLOCK BETWEEN L2 AND L1, so no need for word-granularity signals. 
+    input wire L2_request,
+    input wire [31:0] L2_address,
+    input wire L2_write_enable, // SNOOP THE L2 IF EITHER CORE ASKS FOR A BLOCK
+    // output reg [31:0] L2_rdata_out,
+    output reg L2_ready_out,
+    // input wire [31:0] L2_wdata_in,
+
+    input wire [127:0] L2_rdata_block_in,
+    output reg [127:0] L2_wdata_block_out
+
+    
 );
     localparam IDLE = 3'd0;
     localparam SERVE_C0 = 3'd1;
@@ -61,7 +72,7 @@ module bus_arbiter(
     always @(*) begin 
 
         next_state = state; 
-        C0_ready = 0;
+        C0_grant = 0;
         C0_stall = 0;
         C0_check_L1 = 0;
         C0_L1_address = 32'b0;
@@ -88,7 +99,7 @@ module bus_arbiter(
                 C1_L1_address = C0_address;
 
                 if (C1_L1_ready) begin 
-                    C0_ready = 1; 
+                    C0_grant = 1; 
                     next_state = IDLE; 
                 end
             end
