@@ -18,7 +18,7 @@ module L1_CC(
     input  wire         bus_grant,  // C0_ready
     input  wire [127:0] bus_rdata,  // For L2 // 
     output reg  [127:0] bus_wdata,   // For L2
-    input  wire         bus_ready,    // ?????
+    input  wire         bus_ready,    // ????? NOT SURE WHAT THIS CONNECTS TO HELP
 
     // ==========================================
     // CORE-TO-CORE LINK
@@ -33,7 +33,7 @@ module L1_CC(
     // ==========================================
     input  wire         snoop_req, // C0_check_L1
     input  wire  [31:0] snoop_addr, // C0_L1_address
-    input  wire         snoop_type,   // 0 = Read, 1 = Write // ?????
+    input  wire         snoop_type,   // 0 = Read, 1 = Write // NOT SURE WHAT THIS CONNECTS TO HELP
     output reg          snoop_hit, // C0_L1_hit
     output reg          snoop_dirty // C0_L1_dirty
 
@@ -88,6 +88,7 @@ module L1_CC(
     reg        evict_active; // Tracks if the current bus_req is a PutM eviction
 
     integer i;
+    
     always @(posedge clk or posedge reset) begin 
         if (reset) begin 
             for (i = 0; i < 256; i = i + 1) begin 
@@ -139,7 +140,36 @@ module L1_CC(
         end
 
         else begin
-            if (cpu_req && !cpu_stall) begin
+            if (bus_grant) bus_req <= 0;
+
+
+                if (bus_ready) begin
+                    if (evict_active) begin
+                        // Eviction complete. Now issue the actual fetch/upgrade request.
+                        evict_active <= 0;
+                        bus_req <= 1;
+                        bus_we <= saved_cpu_we;
+                        bus_addr <= saved_cpu_addr;
+                        
+                        if (saved_cpu_we) state_array[saved_cpu_addr[11:4]] <= IM_D;
+                        else              state_array[saved_cpu_addr[11:4]] <= IS_D;
+                    end else begin
+                        // Fetch/Upgrade complete!
+                        dcache_ctrl_we <= 1;
+                        dcache_ctrl_wdata <= c2c_push_valid ? c2c_data_in : bus_rdata;
+                        
+                        tag_array[saved_cpu_addr[11:4]] <= saved_cpu_addr[31:12];
+                        cpu_stall <= 0;
+
+                        // Resolve transient states
+                        if (state_array[saved_cpu_addr[11:4]] == IS_D) 
+                            state_array[saved_cpu_addr[11:4]] <= S;
+                        else if (state_array[saved_cpu_addr[11:4]] == IM_D || 
+                                 state_array[saved_cpu_addr[11:4]] == SM_D)
+                            state_array[saved_cpu_addr[11:4]] <= M;
+                    end
+                end
+            else if (cpu_req && !cpu_stall) begin
 
                 // Invalid: If it's a miss or tags are mismatched
                 if (states[req_index] == I || !tag_match) begin // Not sure about why it's !tag_match..... 
