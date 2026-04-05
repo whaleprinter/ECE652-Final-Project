@@ -1,4 +1,7 @@
-module L1I_cache (
+module L1I_cache #(
+
+    parameter INIT_FILE = "program.hex" 
+)(
     input wire clk,
     input wire reset,
     input wire [31:0] address,
@@ -10,7 +13,8 @@ module L1I_cache (
     reg [7:0] cache [0:4095];
 
     initial begin 
-        $readmemh("program.hex", cache); 
+
+        $readmemh(INIT_FILE, cache); 
     end
 
     always @(posedge clk or posedge reset) begin 

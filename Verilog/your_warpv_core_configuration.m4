@@ -29,7 +29,7 @@
 \m5
    use(m5-1.0)
    var(ISA, RISCV)
-   var(EXT_M, 0)
+   var(EXT_M, 1)
    var(EXT_F, 0)
    var(DMEM_STYLE, EXTERNAL)
    

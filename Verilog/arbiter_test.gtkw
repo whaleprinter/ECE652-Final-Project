@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Sun Mar 22 21:49:39 2026
+[*] Sun Apr  5 19:40:09 2026
 [*]
 [dumpfile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/arbiter_waves.vcd"
-[dumpfile_mtime] "Sun Mar 22 21:45:33 2026"
-[dumpfile_size] 3253
+[dumpfile_mtime] "Sun Apr  5 19:30:32 2026"
+[dumpfile_size] 4716
 [savefile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/arbiter_test.gtkw"
 [timestart] 0
-[size] 1333 864
-[pos] 2426 -281
-*-16.000000 27500 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[size] 1459 1102
+[pos] 154 -1
+*-16.000000 215900 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
 [markername] CC
@@ -38,34 +38,36 @@
 [markername] ZZ
 [treeopen] tb_bus_arbiter.
 [sst_width] 255
-[signals_width] 152
+[signals_width] 185
 [sst_expanded] 1
-[sst_vpaned_height] 503
+[sst_vpaned_height] 573
 @28
 tb_bus_arbiter.clk
+@24
 tb_bus_arbiter.uut.state[2:0]
-tb_bus_arbiter.uut.next_state[2:0]
+@22
+tb_bus_arbiter.l2_rdata[127:0]
+@28
 tb_bus_arbiter.uut.priority
-[color] 5
-tb_bus_arbiter.uut.C0_request
-[color] 5
-tb_bus_arbiter.uut.C0_ready
-[color] 5
-tb_bus_arbiter.uut.C0_check_L1
-[color] 5
-tb_bus_arbiter.uut.C0_L1_ready
-[color] 5
-tb_bus_arbiter.uut.C0_stall
-[color] 1
-tb_bus_arbiter.uut.C1_request
-[color] 1
-tb_bus_arbiter.uut.C1_ready
-[color] 1
-tb_bus_arbiter.uut.C1_check_L1
-[color] 1
-tb_bus_arbiter.uut.C1_L1_ready
+@22
+tb_bus_arbiter.c0_bus_addr[31:0]
+@28
+tb_bus_arbiter.c0_bus_grant
+tb_bus_arbiter.c0_snoop_req
+@22
+tb_bus_arbiter.c1_bus_addr[31:0]
+@28
+tb_bus_arbiter.c1_bus_grant
+tb_bus_arbiter.c1_snoop_req
+@22
+tb_bus_arbiter.l2_addr[31:0]
+@28
+tb_bus_arbiter.l2_ready
+tb_bus_arbiter.l2_req
+tb_bus_arbiter.uut.c1_bus_ready
+tb_bus_arbiter.uut.c0_bus_ready
+tb_bus_arbiter.uut.c0_bus_req
 @29
-[color] 1
-tb_bus_arbiter.uut.C1_stall
+tb_bus_arbiter.uut.c1_bus_req
 [pattern_trace] 1
 [pattern_trace] 0

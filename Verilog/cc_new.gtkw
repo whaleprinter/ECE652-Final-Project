@@ -1,0 +1,32 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sat Apr  4 22:46:06 2026
+[*]
+[dumpfile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/l1_cc_waves.vcd"
+[dumpfile_mtime] "Sat Apr  4 22:36:11 2026"
+[dumpfile_size] 7707
+[savefile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/cc_new.gtkw"
+[timestart] 0
+[size] 1473 958
+[pos] 198 111
+*-17.000000 175600 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[treeopen] tb_new_L1_CC.
+[treeopen] tb_new_L1_CC.uut.
+[sst_width] 255
+[signals_width] 144
+[sst_expanded] 1
+[sst_vpaned_height] 284
+@28
+tb_new_L1_CC.clk
+tb_new_L1_CC.cpu_req
+tb_new_L1_CC.cpu_we
+@22
+tb_new_L1_CC.cpu_addr[31:0]
+@28
+tb_new_L1_CC.cpu_stall
+tb_new_L1_CC.uut.bus_req
+tb_new_L1_CC.uut.bus_we
+tb_new_L1_CC.uut.bus_grant
+tb_new_L1_CC.uut.bus_ready
+[pattern_trace] 1
+[pattern_trace] 0

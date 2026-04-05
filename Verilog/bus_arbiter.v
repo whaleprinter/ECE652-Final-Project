@@ -1,131 +1,166 @@
-module bus_arbiter(
-    input clk,
-    input reset,
+module bus_arbiter (
+    input wire clk,
+    input wire reset,
 
-    // Logic when core 0 asks bus for block
-    input wire C0_request,
-    input wire [31:0] C0_address,
-    input wire C0_write_enable,
-    output reg C0_grant,
-    output reg C0_stall,
+    // Core 0
+    input  wire         c0_bus_req,
+    input  wire  [31:0] c0_bus_addr,
+    input  wire         c0_bus_we,
+    output reg          c0_bus_grant,
+    output reg  [127:0] c0_bus_rdata,
+    input  wire [127:0] c0_bus_wdata,
+    output reg          c0_bus_ready,
 
-    // Logic when core 0 is asked to check its L1
-    output reg C0_check_L1, // also call this snoop request
-    output reg [31:0] C0_L1_address,
-    input wire C0_L1_ready, // also call this snoop done 
-    input wire C0_L1_hit,
-    input wire C0_L1_dirty, 
-    
-    // Logic when core 1 asks bus for block
-    input wire C1_request,
-    input wire [31:0] C1_address,
-    input wire C1_write_enable,
-    output reg C1_ready,
-    output reg C1_stall,
+    output reg          c0_snoop_req,
+    output reg   [31:0] c0_snoop_addr,
+    output reg          c0_snoop_type,
+    input  wire         c0_snoop_hit,
+    input  wire         c0_snoop_dirty,
 
-    // Logic when core 1 is asked to check its L1
-    output reg C1_check_L1,
-    output reg [31:0] C1_L1_address,
-    input wire C1_L1_ready,
-    input wire C1_L1_hit,
-    input wire C1_L1_dirty,
+    // Core 1
+    input  wire         c1_bus_req,
+    input  wire  [31:0] c1_bus_addr,
+    input  wire         c1_bus_we,
+    output reg          c1_bus_grant,
+    output reg  [127:0] c1_bus_rdata,
+    input  wire [127:0] c1_bus_wdata,
+    output reg          c1_bus_ready,
 
+    output reg          c1_snoop_req,
+    output reg   [31:0] c1_snoop_addr,
+    output reg          c1_snoop_type,
+    input  wire         c1_snoop_hit,
+    input  wire         c1_snoop_dirty,
 
-    // L2 Interface. ALWAYS GOING TO BE MOVING AN ENTIRE BLOCK BETWEEN L2 AND L1, so no need for word-granularity signals. 
-    input wire L2_request,
-    input wire [31:0] L2_address,
-    input wire L2_write_enable, // SNOOP THE L2 IF EITHER CORE ASKS FOR A BLOCK
-    // output reg [31:0] L2_rdata_out,
-    output reg L2_ready_out,
-    // input wire [31:0] L2_wdata_in,
-
-    input wire [127:0] L2_rdata_block_in,
-    output reg [127:0] L2_wdata_block_out
-
-    
+    // L2
+    output reg          l2_req,
+    output reg   [31:0] l2_addr,
+    output reg          l2_we,
+    output reg  [127:0] l2_wdata,
+    input  wire [127:0] l2_rdata,
+    input  wire         l2_ready
 );
-    localparam IDLE = 3'd0;
-    localparam SERVE_C0 = 3'd1;
-    localparam SERVE_C1 = 3'd2;
+
+    // FSM States
+    localparam IDLE      = 3'd0;
+    localparam SNOOP_C1  = 3'd1;
+    localparam SNOOP_C0  = 3'd2;
     localparam ACCESS_L2 = 3'd3;
 
-    reg [2:0] state, next_state;
-    reg priority;    
+    reg [2:0] state;
+    reg core_priority;    // 0 = Core 0 core_priority, 1 = Core 1 core_priority
+    reg serving_c0;  // Tracks who currently owns the bus transaction
 
-
-    // State register and priority logic
-    always @(posedge clk or posedge reset) begin 
-
-        if (reset) begin 
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
             state <= IDLE;
-            priority <= 0; 
-        end else begin 
-            state <= next_state;
-            if (state != IDLE && next_state == IDLE) begin 
-                priority <= ~priority; // Round robin HERE I THINK
-            end
+            core_priority <= 0;
+            c0_bus_grant <= 0; c1_bus_grant <= 0;
+            c0_bus_ready <= 0; c1_bus_ready <= 0;
+            c0_snoop_req <= 0; c1_snoop_req <= 0;
+            l2_req <= 0;
+        end else begin
+
+            c0_bus_ready <= 0;
+            c1_bus_ready <= 0;
+
+            case (state)
+                IDLE: begin
+                    l2_req <= 0;
+                    c0_snoop_req <= 0;
+                    c1_snoop_req <= 0;
+
+
+                    if (c0_bus_req && c1_bus_req) begin
+                        if (core_priority == 0) begin
+                            serving_c0 <= 1;
+                            c0_bus_grant <= 1;
+                            c1_snoop_req <= 1;
+                            c1_snoop_addr <= c0_bus_addr;
+                            c1_snoop_type <= c0_bus_we;
+                            state <= SNOOP_C1;
+                        end else begin
+                            serving_c0 <= 0;
+                            c1_bus_grant <= 1;
+                            c0_snoop_req <= 1;
+                            c0_snoop_addr <= c1_bus_addr;
+                            c0_snoop_type <= c1_bus_we;
+                            state <= SNOOP_C0;
+                        end
+                    end 
+                    else if (c0_bus_req) begin
+                        serving_c0 <= 1;
+                        c0_bus_grant <= 1;
+                        c1_snoop_req <= 1;
+                        c1_snoop_addr <= c0_bus_addr;
+                        c1_snoop_type <= c0_bus_we;
+                        state <= SNOOP_C1;
+                    end 
+                    else if (c1_bus_req) begin
+                        serving_c0 <= 0;
+                        c1_bus_grant <= 1;
+                        c0_snoop_req <= 1;
+                        c0_snoop_addr <= c1_bus_addr;
+                        c0_snoop_type <= c1_bus_we;
+                        state <= SNOOP_C0;
+                    end
+                end
+
+                SNOOP_C1: begin
+                    c1_snoop_req <= 0; 
+                    
+                    if (c1_snoop_dirty) begin
+                        // Data sent from other core
+                        c0_bus_ready <= 1;
+                        c0_bus_grant <= 0;
+                        core_priority <= ~core_priority; 
+                        state <= IDLE;
+                    end else begin
+                        // Go to L2 for data
+                        l2_req <= 1;
+                        l2_addr <= c0_bus_addr;
+                        l2_we <= c0_bus_we;
+                        l2_wdata <= c0_bus_wdata;
+                        state <= ACCESS_L2;
+                    end
+                end
+
+                SNOOP_C0: begin
+                    c0_snoop_req <= 0; 
+                    
+                    if (c0_snoop_dirty) begin
+                        c1_bus_ready <= 1;
+                        c1_bus_grant <= 0;
+                        core_priority <= ~core_priority;
+                        state <= IDLE;
+                    end else begin
+                        l2_req <= 1;
+                        l2_addr <= c1_bus_addr;
+                        l2_we <= c1_bus_we;
+                        l2_wdata <= c1_bus_wdata;
+                        state <= ACCESS_L2;
+                    end
+                end
+
+                ACCESS_L2: begin
+                    if (l2_ready) begin
+                        l2_req <= 0; 
+                        
+                        if (serving_c0) begin
+                            c0_bus_rdata <= l2_rdata;
+                            c0_bus_ready <= 1;
+                            c0_bus_grant <= 0;
+                        end else begin
+                            c1_bus_rdata <= l2_rdata;
+                            c1_bus_ready <= 1;
+                            c1_bus_grant <= 0;
+                        end
+                        
+                        core_priority <= ~core_priority;
+                        state <= IDLE;
+                    end
+                end
+            endcase
         end
-
     end
-
-
-    always @(*) begin 
-
-        next_state = state; 
-        C0_grant = 0;
-        C0_stall = 0;
-        C0_check_L1 = 0;
-        C0_L1_address = 32'b0;
-
-        C1_ready = 0;
-        C1_stall = 0;
-        C1_check_L1 = 0;
-        C1_L1_address = 32'b0;
-
-        case (state)
-            IDLE: begin 
-                if (C0_request && C1_request) begin 
-                    next_state = priority ? SERVE_C1 : SERVE_C0; 
-                end else if (C0_request && !C1_request) begin 
-                    next_state = SERVE_C0;
-                end else if (!C0_request && C1_request) begin 
-                    next_state = SERVE_C1;
-                end
-            end
-
-            SERVE_C0: begin 
-                C0_stall = 1; 
-                C1_check_L1 = 1;
-                C1_L1_address = C0_address;
-
-                if (C1_L1_ready) begin 
-                    C0_grant = 1; 
-                    next_state = IDLE; 
-                end
-            end
- 
-            SERVE_C1: begin 
-                C1_stall = 1; 
-                C0_check_L1 = 1;
-                C0_L1_address = C1_address;
-
-                if (C0_L1_ready) begin 
-                    C1_ready = 1; 
-                    next_state = IDLE; 
-                end
-            end
-
-            // TODO: ADD L2 ACCESS STATE STUFF HERE!!!!!
-
-            default: next_state = IDLE;
-        endcase
-    end
-
-
-
-
-
 endmodule
-
-
-

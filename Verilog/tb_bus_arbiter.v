@@ -2,37 +2,74 @@
 
 module tb_bus_arbiter();
 
-    // Inputs to the arbiter (Registers in the TB)
+    // ==========================================
+    // TB REGISTERS (Inputs to Arbiter)
+    // ==========================================
     reg clk, reset;
     
-    reg C0_request, C0_write_enable;
-    reg [31:0] C0_address;
-    reg C0_L1_ready, C0_L1_hit, C0_L1_dirty;
+    // Core 0
+    reg          c0_bus_req;
+    reg  [31:0]  c0_bus_addr;
+    reg          c0_bus_we;
+    reg  [127:0] c0_bus_wdata;
+    reg          c0_snoop_hit;
+    reg          c0_snoop_dirty;
     
-    reg C1_request, C1_write_enable;
-    reg [31:0] C1_address;
-    reg C1_L1_ready, C1_L1_hit, C1_L1_dirty;
+    // Core 1
+    reg          c1_bus_req;
+    reg  [31:0]  c1_bus_addr;
+    reg          c1_bus_we;
+    reg  [127:0] c1_bus_wdata;
+    reg          c1_snoop_hit;
+    reg          c1_snoop_dirty;
 
-    // Outputs from the arbiter (Wires in the TB)
-    wire C0_ready, C0_stall, C0_check_L1;
-    wire [31:0] C0_L1_address;
+    // L2 Cache
+    reg  [127:0] l2_rdata;
+    reg          l2_ready;
+
+    // ==========================================
+    // TB WIRES (Outputs from Arbiter)
+    // ==========================================
+    wire         c0_bus_grant;
+    wire [127:0] c0_bus_rdata;
+    wire         c0_bus_ready;
+    wire         c0_snoop_req;
+    wire [31:0]  c0_snoop_addr;
+    wire         c0_snoop_type;
     
-    wire C1_ready, C1_stall, C1_check_L1;
-    wire [31:0] C1_L1_address;
+    wire         c1_bus_grant;
+    wire [127:0] c1_bus_rdata;
+    wire         c1_bus_ready;
+    wire         c1_snoop_req;
+    wire [31:0]  c1_snoop_addr;
+    wire         c1_snoop_type;
 
-    // Instantiate the Unit Under Test (UUT)
+    wire         l2_req;
+    wire [31:0]  l2_addr;
+    wire         l2_we;
+    wire [127:0] l2_wdata;
+
+    // ==========================================
+    // INSTANTIATE UNIT UNDER TEST (UUT)
+    // ==========================================
     bus_arbiter uut (
         .clk(clk), .reset(reset),
         
-        .C0_request(C0_request), .C0_address(C0_address), .C0_write_enable(C0_write_enable),
-        .C0_ready(C0_ready), .C0_stall(C0_stall),
-        .C0_check_L1(C0_check_L1), .C0_L1_address(C0_L1_address),
-        .C0_L1_ready(C0_L1_ready), .C0_L1_hit(C0_L1_hit), .C0_L1_dirty(C0_L1_dirty),
+        // Core 0
+        .c0_bus_req(c0_bus_req), .c0_bus_addr(c0_bus_addr), .c0_bus_we(c0_bus_we),
+        .c0_bus_grant(c0_bus_grant), .c0_bus_rdata(c0_bus_rdata), .c0_bus_wdata(c0_bus_wdata), .c0_bus_ready(c0_bus_ready),
+        .c0_snoop_req(c0_snoop_req), .c0_snoop_addr(c0_snoop_addr), .c0_snoop_type(c0_snoop_type),
+        .c0_snoop_hit(c0_snoop_hit), .c0_snoop_dirty(c0_snoop_dirty),
         
-        .C1_request(C1_request), .C1_address(C1_address), .C1_write_enable(C1_write_enable),
-        .C1_ready(C1_ready), .C1_stall(C1_stall),
-        .C1_check_L1(C1_check_L1), .C1_L1_address(C1_L1_address),
-        .C1_L1_ready(C1_L1_ready), .C1_L1_hit(C1_L1_hit), .C1_L1_dirty(C1_L1_dirty)
+        // Core 1
+        .c1_bus_req(c1_bus_req), .c1_bus_addr(c1_bus_addr), .c1_bus_we(c1_bus_we),
+        .c1_bus_grant(c1_bus_grant), .c1_bus_rdata(c1_bus_rdata), .c1_bus_wdata(c1_bus_wdata), .c1_bus_ready(c1_bus_ready),
+        .c1_snoop_req(c1_snoop_req), .c1_snoop_addr(c1_snoop_addr), .c1_snoop_type(c1_snoop_type),
+        .c1_snoop_hit(c1_snoop_hit), .c1_snoop_dirty(c1_snoop_dirty),
+
+        // L2 Memory
+        .l2_req(l2_req), .l2_addr(l2_addr), .l2_we(l2_we), .l2_wdata(l2_wdata),
+        .l2_rdata(l2_rdata), .l2_ready(l2_ready)
     );
 
     // Clock generation (10ns period)
@@ -45,68 +82,114 @@ module tb_bus_arbiter();
 
         // Initialize Inputs
         clk = 0; reset = 1;
-        C0_request = 0; C0_address = 0; C0_write_enable = 0; C0_L1_ready = 0; C0_L1_hit = 0; C0_L1_dirty = 0;
-        C1_request = 0; C1_address = 0; C1_write_enable = 0; C1_L1_ready = 0; C1_L1_hit = 0; C1_L1_dirty = 0;
+        c0_bus_req = 0; c0_bus_addr = 0; c0_bus_we = 0; c0_bus_wdata = 0; c0_snoop_hit = 0; c0_snoop_dirty = 0;
+        c1_bus_req = 0; c1_bus_addr = 0; c1_bus_we = 0; c1_bus_wdata = 0; c1_snoop_hit = 0; c1_snoop_dirty = 0;
+        l2_rdata = 0; l2_ready = 0;
 
-        // Wait a few clocks, then release reset on a falling edge
+        // Wait and release reset
         repeat(3) @(negedge clk);
         reset = 0;
         
         // ==========================================
-        // SCENARIO 1: Core 0 requests the bus
+        // SCENARIO 1: Core 0 requests (Clean L2 Fetch)
         // ==========================================
+        $display("\n--- SCENARIO 1: Core 0 L2 Fetch ---");
         @(negedge clk);
-        C0_request = 1;
-        C0_address = 32'hAAAA_BBBB;
+        c0_bus_req = 1;
+        c0_bus_addr = 32'hAAAA_BBBB;
         
-        // Let it stall in SERVE_C0 for a couple of clock cycles
-        repeat(2) @(negedge clk);
-        C1_L1_ready = 1; // Core 1 finishes snoop
-        
-        // De-assert request once granted
+        // Wait for Arbiter to snoop Core 1
+        wait(c1_snoop_req);
         @(negedge clk);
-        C0_request = 0;
-        C1_L1_ready = 0;
+        c0_bus_req = 0; // Drop request once granted
+        c1_snoop_dirty = 0; // Core 1 does NOT have dirty data
+
+        // Arbiter should pivot to L2
+        wait(l2_req);
+        @(negedge clk);
+        // Simulate L2 memory responding
+        l2_ready = 1;
+        l2_rdata = 128'h1111_2222_3333_4444;
+        
+        @(negedge clk);
+        l2_ready = 0;
+        wait(c0_bus_ready); // Wait for arbiter to pass data back to C0
+        $display("Scenario 1 Complete.");
 
         // ==========================================
-        // SCENARIO 2: Core 1 requests the bus
+        // SCENARIO 2: Core 1 requests (Dirty Snoop, C2C Bypass)
         // ==========================================
+        $display("\n--- SCENARIO 2: Core 1 C2C Fetch (Bypass L2) ---");
         repeat(2) @(negedge clk);
-        C1_request = 1;
-        C1_address = 32'hDEAD_BEEF;
+        c1_bus_req = 1;
+        c1_bus_addr = 32'hDEAD_BEEF;
         
-        repeat(2) @(negedge clk);
-        C0_L1_ready = 1; // Core 0 finishes snooping
+        wait(c0_snoop_req);
+        @(negedge clk);
+        c1_bus_req = 0; 
+        
+        // Simulate Core 0 telling the arbiter it has dirty data!
+        c0_snoop_dirty = 1; 
         
         @(negedge clk);
-        C1_request = 0;
-        C0_L1_ready = 0;
+        c0_snoop_dirty = 0;
+        
+        // Arbiter should instantly trigger c1_bus_ready without touching L2
+        wait(c1_bus_ready);
+        $display("Scenario 2 Complete.");
 
         // ==========================================
         // SCENARIO 3: Simultaneous Request (Collision!)
         // ==========================================
+        $display("\n--- SCENARIO 3: Simultaneous Bus Request ---");
         repeat(2) @(negedge clk);
-        C0_request = 1; C0_address = 32'h1111_1111;
-        C1_request = 1; C1_address = 32'h2222_2222;
+        c0_bus_req = 1; c0_bus_addr = 32'h1111_1111;
+        c1_bus_req = 1; c1_bus_addr = 32'h2222_2222;
         
-        // Let arbiter pick the winner based on priority
-        repeat(2) @(negedge clk);
-        C1_L1_ready = 1; // Assume C0 won, C1 finishes snoop
-        
+        // Arbiter uses Round-Robin priority. Wait to see who it snoops.
         @(negedge clk);
-        C0_request = 0; // C0 is happy, drops request
-        C1_L1_ready = 0;
-        
-        // Arbiter should pivot to serve C1
-        repeat(2) @(negedge clk);
-        C0_L1_ready = 1; // C0 finishes snoop
-        
-        @(negedge clk);
-        C1_request = 0; // C1 is happy
-        C0_L1_ready = 0;
+        if (c1_snoop_req) begin
+            $display("Core 0 won priority.");
+            c0_bus_req = 0;
+            c1_snoop_dirty = 0;
+            wait(l2_req);
+            @(negedge clk); l2_ready = 1; l2_rdata = 128'hAAAA;
+            @(negedge clk); l2_ready = 0;
+            wait(c0_bus_ready);
+            
+            // Now Arbiter should immediately pivot to waiting Core 1
+            $display("Serving Core 1 next...");
+            wait(c0_snoop_req);
+            @(negedge clk);
+            c1_bus_req = 0;
+            c0_snoop_dirty = 0;
+            wait(l2_req);
+            @(negedge clk); l2_ready = 1; l2_rdata = 128'hBBBB;
+            @(negedge clk); l2_ready = 0;
+            wait(c1_bus_ready);
+        end else begin
+            $display("Core 1 won priority.");
+            c1_bus_req = 0;
+            c0_snoop_dirty = 0;
+            wait(l2_req);
+            @(negedge clk); l2_ready = 1; l2_rdata = 128'hBBBB;
+            @(negedge clk); l2_ready = 0;
+            wait(c1_bus_ready);
+            
+            // Now Arbiter should immediately pivot to waiting Core 0
+            $display("Serving Core 0 next...");
+            wait(c1_snoop_req);
+            @(negedge clk);
+            c0_bus_req = 0;
+            c1_snoop_dirty = 0;
+            wait(l2_req);
+            @(negedge clk); l2_ready = 1; l2_rdata = 128'hAAAA;
+            @(negedge clk); l2_ready = 0;
+            wait(c0_bus_ready);
+        end
 
         repeat(4) @(negedge clk);
-        $display("Simulation Complete.");
+        $display("\nSimulation Complete.");
         $finish;
     end
 endmodule
