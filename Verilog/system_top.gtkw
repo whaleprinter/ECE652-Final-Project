@@ -1,0 +1,137 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Mon Apr  6 00:13:37 2026
+[*]
+[dumpfile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/system_waves.vcd"
+[dumpfile_mtime] "Sun Apr  5 20:05:01 2026"
+[dumpfile_size] 1935930
+[savefile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/system_top.gtkw"
+[timestart] 0
+[size] 1631 831
+[pos] -1 -1
+*-16.000000 212000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[treeopen] tb_system.
+[treeopen] tb_system.uut.
+[treeopen] tb_system.uut.core0.L1_FETCH_InstrMem[0].
+[sst_width] 255
+[signals_width] 287
+[sst_expanded] 1
+[sst_vpaned_height] 267
+@28
+tb_system.uut.reset
+tb_system.uut.clk
+@22
+tb_system.uut.c0_addr[31:0]
+tb_system.uut.c0_wdata[31:0]
+tb_system.uut.c0_rdata[31:0]
+@c00022
+tb_system.uut.c1_addr[31:0]
+@28
+(0)tb_system.uut.c1_addr[31:0]
+(1)tb_system.uut.c1_addr[31:0]
+(2)tb_system.uut.c1_addr[31:0]
+(3)tb_system.uut.c1_addr[31:0]
+(4)tb_system.uut.c1_addr[31:0]
+(5)tb_system.uut.c1_addr[31:0]
+(6)tb_system.uut.c1_addr[31:0]
+(7)tb_system.uut.c1_addr[31:0]
+(8)tb_system.uut.c1_addr[31:0]
+(9)tb_system.uut.c1_addr[31:0]
+(10)tb_system.uut.c1_addr[31:0]
+(11)tb_system.uut.c1_addr[31:0]
+(12)tb_system.uut.c1_addr[31:0]
+(13)tb_system.uut.c1_addr[31:0]
+(14)tb_system.uut.c1_addr[31:0]
+(15)tb_system.uut.c1_addr[31:0]
+(16)tb_system.uut.c1_addr[31:0]
+(17)tb_system.uut.c1_addr[31:0]
+(18)tb_system.uut.c1_addr[31:0]
+(19)tb_system.uut.c1_addr[31:0]
+(20)tb_system.uut.c1_addr[31:0]
+(21)tb_system.uut.c1_addr[31:0]
+(22)tb_system.uut.c1_addr[31:0]
+(23)tb_system.uut.c1_addr[31:0]
+(24)tb_system.uut.c1_addr[31:0]
+(25)tb_system.uut.c1_addr[31:0]
+(26)tb_system.uut.c1_addr[31:0]
+(27)tb_system.uut.c1_addr[31:0]
+(28)tb_system.uut.c1_addr[31:0]
+(29)tb_system.uut.c1_addr[31:0]
+(30)tb_system.uut.c1_addr[31:0]
+(31)tb_system.uut.c1_addr[31:0]
+@1401200
+-group_end
+@22
+tb_system.uut.c1_wdata[31:0]
+tb_system.uut.c1_rdata[31:0]
+tb_system.uut.c0_link_data_out[127:0]
+tb_system.uut.c1_link_data_out[127:0]
++{C0 L1I Add} tb_system.uut.c0_imem_addr[31:0]
++{C1 L1I Add} tb_system.uut.c1_imem_addr[31:0]
+@c00022
++{C0 Insn In} tb_system.uut.c0_imem_rdata[31:0]
+@28
+(0)tb_system.uut.c0_imem_rdata[31:0]
+(1)tb_system.uut.c0_imem_rdata[31:0]
+(2)tb_system.uut.c0_imem_rdata[31:0]
+(3)tb_system.uut.c0_imem_rdata[31:0]
+(4)tb_system.uut.c0_imem_rdata[31:0]
+(5)tb_system.uut.c0_imem_rdata[31:0]
+(6)tb_system.uut.c0_imem_rdata[31:0]
+(7)tb_system.uut.c0_imem_rdata[31:0]
+(8)tb_system.uut.c0_imem_rdata[31:0]
+(9)tb_system.uut.c0_imem_rdata[31:0]
+(10)tb_system.uut.c0_imem_rdata[31:0]
+(11)tb_system.uut.c0_imem_rdata[31:0]
+(12)tb_system.uut.c0_imem_rdata[31:0]
+(13)tb_system.uut.c0_imem_rdata[31:0]
+(14)tb_system.uut.c0_imem_rdata[31:0]
+(15)tb_system.uut.c0_imem_rdata[31:0]
+(16)tb_system.uut.c0_imem_rdata[31:0]
+(17)tb_system.uut.c0_imem_rdata[31:0]
+(18)tb_system.uut.c0_imem_rdata[31:0]
+(19)tb_system.uut.c0_imem_rdata[31:0]
+(20)tb_system.uut.c0_imem_rdata[31:0]
+(21)tb_system.uut.c0_imem_rdata[31:0]
+(22)tb_system.uut.c0_imem_rdata[31:0]
+(23)tb_system.uut.c0_imem_rdata[31:0]
+(24)tb_system.uut.c0_imem_rdata[31:0]
+(25)tb_system.uut.c0_imem_rdata[31:0]
+(26)tb_system.uut.c0_imem_rdata[31:0]
+(27)tb_system.uut.c0_imem_rdata[31:0]
+(28)tb_system.uut.c0_imem_rdata[31:0]
+(29)tb_system.uut.c0_imem_rdata[31:0]
+(30)tb_system.uut.c0_imem_rdata[31:0]
+(31)tb_system.uut.c0_imem_rdata[31:0]
+@1401200
+-group_end
+@22
++{C1 Insn In} tb_system.uut.c1_imem_rdata[31:0]
+[pattern_trace] 1
+[pattern_trace] 0
