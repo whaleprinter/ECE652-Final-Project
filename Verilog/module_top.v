@@ -199,7 +199,8 @@ module system_top (
     ) core0_l1i (
         .clk(clk),
         .reset(reset),
-        .address(core0.FETCH_Cnt_n1),
+        // .address((core0.FETCH_Cnt_n1 - 1) * 4),
+        .address(c0_imem_addr),
         .data(c0_imem_rdata)
     );
 
@@ -208,25 +209,25 @@ module system_top (
     ) core1_l1i (
         .clk(clk),
         .reset(reset),
-        .address(core1.FETCH_Cnt_n1),
+        .address((core1.FETCH_Cnt_n1 -1) * 4),
         .data(c1_imem_rdata)
     );
 
-    reg [31:0] c0_imem_rdata_reg;
-    reg        c0_imem_valid;
+    // reg [31:0] c0_imem_rdata_reg;
+    // reg        c0_imem_valid;
 
-    always @(posedge clk) begin
-        if (reset) begin
-            c0_imem_valid <= 0;
-        end else begin
-            if (c0_imem_req) begin
-                c0_imem_rdata_reg <= c0_imem_rdata; // from L1I
-                c0_imem_valid <= 1;
-            end else begin
-                c0_imem_valid <= 0;
-            end
-        end
-    end
+    // always @(posedge clk) begin
+    //     if (reset) begin
+    //         c0_imem_valid <= 0;
+    //     end else begin
+    //         if (c0_imem_req) begin
+    //             c0_imem_rdata_reg <= c0_imem_rdata; // from L1I
+    //             c0_imem_valid <= 1;
+    //         end else begin
+    //             c0_imem_valid <= 0;
+    //         end
+    //     end
+    // end
 
 // reg [3:0] reset_counter;
 
@@ -239,7 +240,9 @@ module system_top (
 
 // wire init_done = (reset_counter == 4'hF);
 
-    warp_v_core core0 (
+    warp_v_core #(
+        .INIT_FILE("basic_test.hex")
+    ) core0 (
         .clk(clk),
         .reset(reset),
         .dmem_addr_out(c0_addr),
@@ -247,25 +250,27 @@ module system_top (
         .dmem_we_out(c0_we),
         .dmem_req_out(c0_req),
         .dmem_rdata_in(c0_rdata),
-        .dmem_stall_in(c0_stall),
-        .imem_addr_out(c0_imem_addr),
-        .imem_req_out(c0_imem_req),
-        .imem_rdata_in(c0_imem_req ? c0_imem_rdata : 32'b0), // Provide valid data only when request is active
-        .imem_stall_in(c0_stall)//reset ? 1'b1 : c0_stall)
+        .dmem_stall_in(c0_stall)
+        // .imem_addr_out(c0_imem_addr),
+        // .imem_req_out(c0_imem_req),
+        // .imem_rdata_in(c0_imem_req ? c0_imem_rdata : 32'b0), // Provide valid data only when request is active
+        // .imem_stall_in(c0_stall)//reset ? 1'b1 : c0_stall)
     );
 
-    always @(posedge clk) begin
-    if (c0_imem_req) begin
-        $display("PC=%h INSTR=%h", c0_imem_addr, c0_imem_rdata);
-    end
-end
+//     always @(posedge clk) begin
+//     if (c0_imem_req) begin
+//         $display("PC=%h INSTR=%h", c0_imem_addr, c0_imem_rdata);
+//     end
+// end
 
 // always @(posedge clk) begin
 //     if (^c0_imem_addr === 1'bx)
 //         $display("PC became X at time %t", $time);
 // end
 
-    warp_v_core core1 (
+    warp_v_core #(
+        .INIT_FILE("basic_test.hex")
+    ) core1 (
         .clk(clk),
         .reset(reset),
         .dmem_addr_out(c1_addr),
@@ -273,11 +278,11 @@ end
         .dmem_we_out(c1_we),
         .dmem_req_out(c1_req),
         .dmem_rdata_in(c1_rdata),
-        .dmem_stall_in(c1_stall),
-        .imem_addr_out(c1_imem_addr),
-        .imem_req_out(c1_imem_req),
-        .imem_rdata_in(c1_imem_req ? c1_imem_rdata : 32'b0),
-        .imem_stall_in(c1_stall)
+        .dmem_stall_in(c1_stall)
+        // .imem_addr_out(c1_imem_addr),
+        // .imem_req_out(c1_imem_req),
+        // .imem_rdata_in(c1_imem_req ? c1_imem_rdata : 32'b0),
+        // .imem_stall_in(c1_stall)
     );
 
 

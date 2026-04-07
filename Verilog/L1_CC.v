@@ -44,6 +44,14 @@
 
     reg [19:0] tags   [0:255];
     reg  [2:0] states [0:255];
+    
+    integer j;
+    initial begin
+        for (j = 0; j < 256; j = j + 1) begin
+            states[j] = 2'b00; 
+            tags[j]   = 24'b0;
+        end
+    end
 
     //   [31:12] tag 
     //   [11:4]  index 
@@ -105,6 +113,8 @@
         (!tag_match && states[req_index] != I) || 
         (!is_stable)
     );
+
+    
 
     integer i;
     always @(posedge clk or posedge reset) begin

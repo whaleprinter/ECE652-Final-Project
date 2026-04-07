@@ -2,6 +2,9 @@ To compile C down to RISC-V Binary:
 riscv64-unknown-elf-gcc -march=rv32i -mabi=ilp32 -O1 -nostdlib -nostartfiles -Ttext 0x00000000 -o test.elf test.c
 riscv64-unknown-elf-objcopy -O verilog test.elf L1I_cache_init.hex
 
+To compile C down to RISC-V Assembly:
+riscv64-unknown-elf-gcc -march=rv32i -mabi=ilp32 -S test.s test.c
+
 To translate .s RISC-V assembly to RISC-V Binary:
 riscv64-unknown-elf-as -march=rv32i -mabi=ilp32 -o test.o test.s
 riscv64-unknown-elf-objcopy -O binary test.o program.bin // For binary
