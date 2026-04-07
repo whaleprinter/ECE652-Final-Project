@@ -1,0 +1,20 @@
+// 1. Declare the array as a 'reg' so we can initialize it
+                                    reg [31:0] instrs [0:1023];
+                                    reg [7:0] temp_bytes [0:4095];
+
+                                    integer i;
+                                    initial begin
+                                       // 2. Kill the X-Bombs
+                                       for(i = 0; i < 4096; i = i + 1) temp_bytes[i] = 8'h6F; // Default to 'j .' loop
+                                       
+                                       // 3. Load the bytes from your hex file
+                                       $readmemh(INIT_FILE, temp_bytes);
+                                       
+                                       // 4. Pack the Little-Endian bytes into 32-bit RISC-V words!
+                                       for(i = 0; i < 1024; i = i + 1) begin
+                                             instrs[i] = {temp_bytes[i*4+3], temp_bytes[i*4+2], temp_bytes[i*4+1], temp_bytes[i*4]};
+                                       end
+                                    end
+
+                                    // 5. RESTORE THE ORIGINAL PIPELINE CODE! (Undo your manual bypass hack)
+                                    assign FETCH_fetch_word_a0[31:0] = instrs[FETCH_Instr_Pc_a0[6:2]];

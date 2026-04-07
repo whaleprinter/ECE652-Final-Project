@@ -209,7 +209,7 @@ module system_top (
     ) core1_l1i (
         .clk(clk),
         .reset(reset),
-        .address((core1.FETCH_Cnt_n1 -1) * 4),
+        .address(c1_imem_addr),
         .data(c1_imem_rdata)
     );
 
@@ -240,9 +240,29 @@ module system_top (
 
 // wire init_done = (reset_counter == 4'hF);
 
-    warp_v_core #(
-        .INIT_FILE("basic_test.hex")
-    ) core0 (
+    // warp_v_core uut (
+    //     .clk(clk),
+    //     .reset(reset),
+        
+    //     // Tie Data Memory to always return 0 and never stall
+    //     .dmem_rdata_in(32'b0),
+    //     .dmem_stall_in(1'b0),
+        
+    //     .dmem_addr_out(dmem_addr_out),
+    //     .dmem_wdata_out(dmem_wdata_out),
+    //     .dmem_we_out(dmem_we_out),
+    //     .dmem_req_out(dmem_req_out),
+
+    //     // Hardcode the Instruction Memory to always return NOP (addi x0, x0, 0)
+    //     // and never stall.
+    //     .imem_rdata_in(32'h00000013),
+    //     .imem_stall_in(1'b0),
+        
+    //     .imem_addr_out(imem_addr_out),
+    //     .imem_req_out(imem_req_out)
+    // );
+
+    warp_v_core core0(
         .clk(clk),
         .reset(reset),
         .dmem_addr_out(c0_addr),
@@ -250,9 +270,11 @@ module system_top (
         .dmem_we_out(c0_we),
         .dmem_req_out(c0_req),
         .dmem_rdata_in(c0_rdata),
-        .dmem_stall_in(c0_stall)
-        // .imem_addr_out(c0_imem_addr),
-        // .imem_req_out(c0_imem_req),
+        .dmem_stall_in(c0_stall),
+        .imem_addr_out(c0_imem_addr),
+        .imem_req_out(c0_imem_req),
+        .imem_rdata_in(32'h00000013), // DEBUG
+        .imem_stall_in(1'b0) // DEBUG
         // .imem_rdata_in(c0_imem_req ? c0_imem_rdata : 32'b0), // Provide valid data only when request is active
         // .imem_stall_in(c0_stall)//reset ? 1'b1 : c0_stall)
     );
@@ -268,22 +290,22 @@ module system_top (
 //         $display("PC became X at time %t", $time);
 // end
 
-    warp_v_core #(
-        .INIT_FILE("basic_test.hex")
-    ) core1 (
-        .clk(clk),
-        .reset(reset),
-        .dmem_addr_out(c1_addr),
-        .dmem_wdata_out(c1_wdata),
-        .dmem_we_out(c1_we),
-        .dmem_req_out(c1_req),
-        .dmem_rdata_in(c1_rdata),
-        .dmem_stall_in(c1_stall)
+    // warp_v_core #(
+    //     .INIT_FILE("basic_test.hex")
+    // ) core1 (
+    //     .clk(clk),
+    //     .reset(reset),
+    //     .dmem_addr_out(c1_addr),
+    //     .dmem_wdata_out(c1_wdata),
+    //     .dmem_we_out(c1_we),
+    //     .dmem_req_out(c1_req),
+    //     .dmem_rdata_in(c1_rdata),
+    //     .dmem_stall_in(c1_stall)
         // .imem_addr_out(c1_imem_addr),
         // .imem_req_out(c1_imem_req),
         // .imem_rdata_in(c1_imem_req ? c1_imem_rdata : 32'b0),
         // .imem_stall_in(c1_stall)
-    );
+    // );
 
 
 endmodule

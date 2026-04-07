@@ -1,0 +1,58 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Tue Apr  7 19:36:54 2026
+[*]
+[dumpfile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/naked_core.vcd"
+[dumpfile_mtime] "Tue Apr  7 19:31:48 2026"
+[dumpfile_size] 110830
+[savefile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/naked_core_test.gtkw"
+[timestart] 0
+[size] 1705 744
+[pos] -1 -1
+*-15.000000 73200 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[treeopen] tb_naked_core.
+[sst_width] 255
+[signals_width] 289
+[sst_expanded] 1
+[sst_vpaned_height] 275
+@22
+tb_naked_core.imem_addr_out[31:0]
+@28
+tb_naked_core.imem_req_out
+tb_naked_core.reset
+@22
+tb_naked_core.uut.FETCH_Instr_Pc_a0[31:0]
+@28
+tb_naked_core.uut.clk
+@22
+tb_naked_core.uut.imem_rdata_in[31:0]
+@23
+tb_naked_core.uut.FETCH_Instr_next_pc_a0[31:0]
+[pattern_trace] 1
+[pattern_trace] 0
