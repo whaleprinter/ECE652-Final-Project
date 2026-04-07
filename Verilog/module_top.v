@@ -199,7 +199,7 @@ module system_top (
     ) core0_l1i (
         .clk(clk),
         .reset(reset),
-        .address(c0_imem_addr),
+        .address(core0.FETCH_Cnt_n1),
         .data(c0_imem_rdata)
     );
 
@@ -208,9 +208,36 @@ module system_top (
     ) core1_l1i (
         .clk(clk),
         .reset(reset),
-        .address(c1_imem_addr),
+        .address(core1.FETCH_Cnt_n1),
         .data(c1_imem_rdata)
     );
+
+    reg [31:0] c0_imem_rdata_reg;
+    reg        c0_imem_valid;
+
+    always @(posedge clk) begin
+        if (reset) begin
+            c0_imem_valid <= 0;
+        end else begin
+            if (c0_imem_req) begin
+                c0_imem_rdata_reg <= c0_imem_rdata; // from L1I
+                c0_imem_valid <= 1;
+            end else begin
+                c0_imem_valid <= 0;
+            end
+        end
+    end
+
+// reg [3:0] reset_counter;
+
+// always @(posedge clk) begin
+//     if (reset)
+//         reset_counter <= 0;
+//     else if (reset_counter != 4'hF)
+//         reset_counter <= reset_counter + 1;
+// end
+
+// wire init_done = (reset_counter == 4'hF);
 
     warp_v_core core0 (
         .clk(clk),
@@ -223,9 +250,20 @@ module system_top (
         .dmem_stall_in(c0_stall),
         .imem_addr_out(c0_imem_addr),
         .imem_req_out(c0_imem_req),
-        .imem_rdata_in(c0_imem_rdata),
-        .imem_stall_in(1'b0)
+        .imem_rdata_in(c0_imem_req ? c0_imem_rdata : 32'b0), // Provide valid data only when request is active
+        .imem_stall_in(c0_stall)//reset ? 1'b1 : c0_stall)
     );
+
+    always @(posedge clk) begin
+    if (c0_imem_req) begin
+        $display("PC=%h INSTR=%h", c0_imem_addr, c0_imem_rdata);
+    end
+end
+
+// always @(posedge clk) begin
+//     if (^c0_imem_addr === 1'bx)
+//         $display("PC became X at time %t", $time);
+// end
 
     warp_v_core core1 (
         .clk(clk),
@@ -238,8 +276,8 @@ module system_top (
         .dmem_stall_in(c1_stall),
         .imem_addr_out(c1_imem_addr),
         .imem_req_out(c1_imem_req),
-        .imem_rdata_in(c1_imem_rdata),
-        .imem_stall_in(1'b0)
+        .imem_rdata_in(c1_imem_req ? c1_imem_rdata : 32'b0),
+        .imem_stall_in(c1_stall)
     );
 
 

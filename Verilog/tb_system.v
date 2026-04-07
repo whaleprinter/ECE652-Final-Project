@@ -19,15 +19,21 @@ module tb_system();
         $dumpvars(0, tb_system);
 
 
+        // Power on
         clk = 0;
         reset = 1;
 
+        // Hold reset for 10 full clock cycles (Deep Flush)
+        // We use negedge to avoid clock-edge race conditions
+        repeat(10) @(negedge clk); 
+        
+        // Release reset cleanly
+        reset = 0; 
+        $display("System Booting... Cores are executing firmware.");
 
-        #20;
-        reset = 0;
-        $display("Starting");
+        // Let it run
+        #5000;
 
-        #40000; // Adjust this value if longer time is needed for execution
         
         $display("Simulation Complete.");
         $finish;

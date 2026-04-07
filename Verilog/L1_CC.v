@@ -9,7 +9,7 @@
     input  wire         cpu_we,         // dmem_we_out
     input  wire  [31:0] cpu_wdata,      // dmem_wdata_out
     output wire  [31:0] cpu_rdata,      // dmem_rdata_in
-    output reg          cpu_stall,      // dmem_stall_in
+    output wire          cpu_stall,      // dmem_stall_in
 
     // Arbiter
     output reg          bus_req,        // C0_request
@@ -66,6 +66,8 @@
     // Word write enable: only write CPU data when needed
     wire dcache_cpu_we = cpu_req & cpu_we & ~cpu_stall;
 
+    
+
     L1D_cache dcache (
         .clk             (clk),
         .index           (active_index),
@@ -91,6 +93,19 @@
     reg evict_active;
 
 
+    // ==========================================
+    // COMBINATORIAL STALL LOGIC
+    // ==========================================
+    wire is_stable = (states[req_index] == I || states[req_index] == S || states[req_index] == M);
+
+    // Freeze CPU instantly if it makes a request and the cache is not ready
+    assign cpu_stall = cpu_req && (
+        (states[req_index] == I) || 
+        (states[req_index] == S && cpu_we) || 
+        (!tag_match && states[req_index] != I) || 
+        (!is_stable)
+    );
+
     integer i;
     always @(posedge clk or posedge reset) begin
         if (reset) begin
@@ -98,7 +113,7 @@
                 tags[i]   <= 20'b0;
                 states[i] <= I;
             end
-            cpu_stall      <= 0;
+            // cpu_stall      <= 0;
             bus_req        <= 0;
             bus_addr       <= 0;
             bus_we         <= 0;
@@ -195,7 +210,7 @@
                     // if (bus_ready && !evict_active) begin // DEBUG
                     //     $display("FILL: saved=%0h index=%0h tag=%0h",saved_cpu_addr, saved_cpu_addr[11:4], saved_cpu_addr[31:12]);
                     // end
-                    cpu_stall <= 0;
+                    // cpu_stall <= 0;
 
                     // Resolve transient states
                     case (states[saved_cpu_addr[11:4]])
@@ -207,13 +222,13 @@
             end
 
             // CPU Request Handling
-            else if (cpu_req && !cpu_stall) begin
+            else if (cpu_req && is_stable) begin // cpu_req && !cpu_stall is the old condition
 
                 case (states[req_index])
 
                     
                     I: begin
-                        cpu_stall      <= 1;
+                        // cpu_stall      <= 1;
                         saved_cpu_we   <= cpu_we;
                         saved_cpu_addr <= cpu_addr;
                         bus_req        <= 1;
@@ -233,7 +248,7 @@
                             // Clean eviction 
                             // No write back
                             states[req_index]  <= I;
-                            cpu_stall          <= 1;
+                            // cpu_stall          <= 1;
                             saved_cpu_we       <= cpu_we;
                             saved_cpu_addr     <= cpu_addr;
                             bus_req            <= 1;
@@ -249,7 +264,7 @@
                             // Tag match in S
                             if (cpu_we) begin
                                 // Write hit in S so upgrade to M
-                                cpu_stall          <= 1;
+                                // cpu_stall          <= 1;
                                 saved_cpu_we       <= cpu_we;
                                 saved_cpu_addr     <= cpu_addr;
                                 bus_req            <= 1;
@@ -263,7 +278,7 @@
                     M: begin
                         if (!tag_match) begin
                             // Dirty eviction required before fetching new line
-                            cpu_stall      <= 1;
+                            // cpu_stall      <= 1;
                             saved_cpu_we   <= cpu_we;
                             saved_cpu_addr <= cpu_addr;
                             evict_active   <= 1;

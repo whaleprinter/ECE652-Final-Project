@@ -41,6 +41,7 @@ module L1I_cache #(
     initial begin 
         integer i;
         for (i = 0; i < 4096; i = i + 1) cache[i] = 8'b0;
+        
         $readmemh(INIT_FILE, cache); 
     end
 

@@ -9,7 +9,12 @@ module L2_cache(
 );
 
     reg [127:0] cache [0:1023]; // 16 byte cache blocks. 1023 blocks. 16 KB total cache size 
-
+    integer i;
+    initial begin
+        for (i = 0; i < 1024; i = i + 1) begin
+            cache[i] = 128'b0;
+        end
+    end
 
     // Read
     always @(*) begin

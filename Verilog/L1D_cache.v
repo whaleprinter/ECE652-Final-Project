@@ -16,6 +16,12 @@ module L1D_cache(
 
     reg [127:0] cache [0:255]; // 16 byte cache blocks. 256 blocks. 4 KB total cache size 
 
+    integer i;
+    initial begin
+        for (i = 0; i < 256; i = i + 1) begin
+            cache[i] = 128'b0;
+        end
+    end
     // Read
     always @(*) begin
         ctrl_read_data = cache[index];
