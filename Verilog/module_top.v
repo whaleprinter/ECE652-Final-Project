@@ -1,6 +1,71 @@
 module system_top (
     input wire clk,
-    input wire reset
+    input wire reset,
+
+    output wire [31:0] c0_r1,
+    output wire [31:0] c0_r2,
+    output wire [31:0] c0_r3,
+    output wire [31:0] c0_r4,
+    output wire [31:0] c0_r5,
+    output wire [31:0] c0_r6,
+    output wire [31:0] c0_r7,
+    output wire [31:0] c0_r8,
+    output wire [31:0] c0_r9,
+    output wire [31:0] c0_r10,
+    output wire [31:0] c0_r11,
+    output wire [31:0] c0_r12,
+    output wire [31:0] c0_r13,
+    output wire [31:0] c0_r14,
+    output wire [31:0] c0_r15,
+    output wire [31:0] c0_r16,
+    output wire [31:0] c0_r17,
+    output wire [31:0] c0_r18,
+    output wire [31:0] c0_r19,
+    output wire [31:0] c0_r20,
+    output wire [31:0] c0_r21,
+    output wire [31:0] c0_r22,
+    output wire [31:0] c0_r23,
+    output wire [31:0] c0_r24,
+    output wire [31:0] c0_r25,
+    output wire [31:0] c0_r26,
+    output wire [31:0] c0_r27,
+    output wire [31:0] c0_r28,
+    output wire [31:0] c0_r29,
+    output wire [31:0] c0_r30,
+    output wire [31:0] c0_r31,
+
+
+    output wire [31:0] c1_r1,
+    output wire [31:0] c1_r2,
+    output wire [31:0] c1_r3,
+    output wire [31:0] c1_r4,
+    output wire [31:0] c1_r5,
+    output wire [31:0] c1_r6,
+    output wire [31:0] c1_r7,
+    output wire [31:0] c1_r8,
+    output wire [31:0] c1_r9,
+    output wire [31:0] c1_r10,
+    output wire [31:0] c1_r11,
+    output wire [31:0] c1_r12,
+    output wire [31:0] c1_r13,
+    output wire [31:0] c1_r14,
+    output wire [31:0] c1_r15,
+    output wire [31:0] c1_r16,
+    output wire [31:0] c1_r17,
+    output wire [31:0] c1_r18,
+    output wire [31:0] c1_r19,
+    output wire [31:0] c1_r20,
+    output wire [31:0] c1_r21,
+    output wire [31:0] c1_r22,
+    output wire [31:0] c1_r23,
+    output wire [31:0] c1_r24,
+    output wire [31:0] c1_r25,
+    output wire [31:0] c1_r26,
+    output wire [31:0] c1_r27,
+    output wire [31:0] c1_r28,
+    output wire [31:0] c1_r29,
+    output wire [31:0] c1_r30,
+    output wire [31:0] c1_r31
 );
 
     // CPU 0 and L1
@@ -35,6 +100,12 @@ module system_top (
     // C0 to C1 Link
     wire        c0_link_push_req;
     wire [127:0] c0_link_data_out;
+    
+    // // Core 0 Register outputs
+    // wire [31:0] c0_r1, c0_r2, c0_r3, c0_r4, c0_r5, c0_r6, c0_r7, c0_r8, c0_r9;
+    // wire [31:0] c0_r10, c0_r11, c0_r12, c0_r13, c0_r14, c0_r15, c0_r16, c0_r17;
+    // wire [31:0] c0_r18, c0_r19, c0_r20, c0_r21, c0_r22, c0_r23, c0_r24, c0_r25;
+    // wire [31:0] c0_r26, c0_r27, c0_r28, c0_r29, c0_r30, c0_r31;
 
     
     // CPU 1 and L1
@@ -195,7 +266,7 @@ module system_top (
     );
 
     L1I_cache #(
-        .INIT_FILE("core0_program.hex") 
+        .INIT_FILE("Hex_files/basic_test_c0.hex") 
     ) core0_l1i (
         .clk(clk),
         .reset(reset),
@@ -205,7 +276,7 @@ module system_top (
     );
 
     L1I_cache #(
-        .INIT_FILE("core1_program.hex") 
+        .INIT_FILE("Hex_files/basic_test_c1.hex") 
     ) core1_l1i (
         .clk(clk),
         .reset(reset),
@@ -234,7 +305,42 @@ module system_top (
         .imem_stall_in(1'b0), // THIS LINE IS THE PROBLEM!!!!!
         
         .imem_addr_out(c0_imem_addr),
-        .imem_req_out(c0_imem_req)
+        .imem_req_out(c0_imem_req),
+
+        // Core 0 Registers:
+        .x1_ra(c0_r1), 
+        .x2_sp(c0_r2), 
+        .x3_gp(c0_r3), 
+        .x4_tp(c0_r4), 
+        .x5_t0(c0_r5), 
+        .x6_t1(c0_r6), 
+        .x7_t2(c0_r7), 
+        .x8_s0(c0_r8),
+        .x9_s1(c0_r9), 
+        .x10_a0(c0_r10), 
+        .x11_a1(c0_r11), 
+        .x12_a2(c0_r12), 
+        .x13_a3(c0_r13), 
+        .x14_a4(c0_r14), 
+        .x15_a5(c0_r15), 
+        .x16_a6(c0_r16),
+        .x17_a7(c0_r17), 
+        .x18_s2(c0_r18), 
+        .x19_s3(c0_r19), 
+        .x20_s4(c0_r20), 
+        .x21_s5(c0_r21), 
+        .x22_s6(c0_r22), 
+        .x23_s7(c0_r23), 
+        .x24_s8(c0_r24),
+        .x25_s9(c0_r25), 
+        .x26_s10(c0_r26), 
+        .x27_s11(c0_r27), 
+        .x28_t3(c0_r28), 
+        .x29_t4(c0_r29), 
+        .x30_t5(c0_r30), 
+        .x31_t6(c0_r31)
+
+
     );
 
 
@@ -258,7 +364,43 @@ module system_top (
         .imem_stall_in(1'b0), // THIS LINE IS THE PROBLEM!!!!!
         
         .imem_addr_out(c1_imem_addr),
-        .imem_req_out(c1_imem_req)
+        .imem_req_out(c1_imem_req),
+
+        // Core 1 Registers:
+        .x1_ra(c1_r1), 
+        .x2_sp(c1_r2), 
+        .x3_gp(c1_r3), 
+        .x4_tp(c1_r4), 
+        .x5_t0(c1_r5), 
+        .x6_t1(c1_r6), 
+        .x7_t2(c1_r7), 
+        .x8_s0(c1_r8),
+        .x9_s1(c1_r9), 
+        .x10_a0(c1_r10), 
+        .x11_a1(c1_r11), 
+        .x12_a2(c1_r12), 
+        .x13_a3(c1_r13), 
+        .x14_a4(c1_r14), 
+        .x15_a5(c1_r15), 
+        .x16_a6(c1_r16),
+        .x17_a7(c1_r17), 
+        .x18_s2(c1_r18), 
+        .x19_s3(c1_r19), 
+        .x20_s4(c1_r20), 
+        .x21_s5(c1_r21), 
+        .x22_s6(c1_r22), 
+        .x23_s7(c1_r23), 
+        .x24_s8(c1_r24),
+        .x25_s9(c1_r25), 
+        .x26_s10(c1_r26), 
+        .x27_s11(c1_r27), 
+        .x28_t3(c1_r28), 
+        .x29_t4(c1_r29), 
+        .x30_t5(c1_r30), 
+        .x31_t6(c1_r31)
+
+
+        
     );
 
 

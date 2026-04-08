@@ -6,22 +6,55 @@
    //  parameter INIT_FILE = "program.hex"
    // )
    (
-       input wire clk,
-       input wire reset,
+      input wire clk,
+      input wire reset,
 
-       // Data Memory Ports (For your MSI Cache)
-       output wire [31:0] dmem_addr_out,
-       output wire [31:0] dmem_wdata_out,
-       output wire dmem_we_out,
-       output wire dmem_req_out,
-       input  wire [31:0] dmem_rdata_in,
-       input  wire dmem_stall_in,
+      // Data Memory Ports (For your MSI Cache)
+      output wire [31:0] dmem_addr_out,
+      output wire [31:0] dmem_wdata_out,
+      output wire dmem_we_out,
+      output wire dmem_req_out,
+      input  wire [31:0] dmem_rdata_in,
+      input  wire dmem_stall_in,
 
-       // Instruction Memory Ports (NEW)
-       output wire [31:0] imem_addr_out,
-       output wire imem_req_out,
-       input  wire [31:0] imem_rdata_in,
-       input  wire imem_stall_in
+      // Instruction Memory Ports (NEW)
+      output wire [31:0] imem_addr_out,
+      output wire imem_req_out,
+      input  wire [31:0] imem_rdata_in,
+      input  wire imem_stall_in,
+
+      // Regfile Inspection
+      output wire [31:0] x1_ra, 
+      output wire [31:0] x2_sp, 
+      output wire [31:0] x3_gp, 
+      output wire [31:0] x4_tp, 
+      output wire [31:0] x5_t0, 
+      output wire [31:0] x6_t1, 
+      output wire [31:0] x7_t2, 
+      output wire [31:0] x8_s0, 
+      output wire [31:0] x9_s1,
+      output wire [31:0] x10_a0,
+      output wire [31:0] x11_a1,
+      output wire [31:0] x12_a2,
+      output wire [31:0] x13_a3,
+      output wire [31:0] x14_a4,
+      output wire [31:0] x15_a5,
+      output wire [31:0] x16_a6,
+      output wire [31:0] x17_a7,
+      output wire [31:0] x18_s2,
+      output wire [31:0] x19_s3,
+      output wire [31:0] x20_s4,
+      output wire [31:0] x21_s5,
+      output wire [31:0] x22_s6,
+      output wire [31:0] x23_s7,
+      output wire [31:0] x24_s8,
+      output wire [31:0] x25_s9,
+      output wire [31:0] x26_s10,
+      output wire [31:0] x27_s11,
+      output wire [31:0] x28_t3,
+      output wire [31:0] x29_t4,
+      output wire [31:0] x30_t5,
+      output wire [31:0] x31_t6
    );
 
    // Dummy wires to satisfy Makerchip
@@ -1014,7 +1047,7 @@ wire [5:0] FETCH_Instr_stall_cnt_a0;
 reg  [5:0] FETCH_Instr_stall_cnt_a1;
 
 // For |fetch/instr$stalling.
-wire FETCH_Instr_stalling_a0;
+wire FETCH_Instr_stalling_a0; // USE THIS WIRE TO STALL CPU???
 
 // For |fetch/instr$sub_rslt.
 wire [31:0] FETCH_Instr_sub_rslt_a0;
@@ -3031,9 +3064,48 @@ endgenerate
                         
                         
                         
-                        
-                        
-                        
+
+                           // Assign register values 
+                           
+                           assign x1_ra  = FETCH_Instr_Regs_value_a0[1];  // Return Address
+                           assign x2_sp  = FETCH_Instr_Regs_value_a0[2];  // Stack Pointer
+                           assign x3_gp  = FETCH_Instr_Regs_value_a0[3];  // Global Pointer
+                           assign x4_tp  = FETCH_Instr_Regs_value_a0[4];  // Thread Pointer
+                           
+                           assign x5_t0  = FETCH_Instr_Regs_value_a0[5];  // Temporary
+                           assign x6_t1  = FETCH_Instr_Regs_value_a0[6];  // Temporary
+                           assign x7_t2  = FETCH_Instr_Regs_value_a0[7];  // Temporary
+                           
+                           assign x8_s0  = FETCH_Instr_Regs_value_a0[8];  // Saved Register / Frame Pointer
+                           assign x9_s1  = FETCH_Instr_Regs_value_a0[9];  // Saved Register
+                           
+                           assign x10_a0 = FETCH_Instr_Regs_value_a0[10]; // Function Argument / Return Value
+                           assign x11_a1 = FETCH_Instr_Regs_value_a0[11]; // Function Argument / Return Value
+                           assign x12_a2 = FETCH_Instr_Regs_value_a0[12]; // Function Argument
+                           assign x13_a3 = FETCH_Instr_Regs_value_a0[13]; // Function Argument
+                           assign x14_a4 = FETCH_Instr_Regs_value_a0[14]; // Function Argument
+                           assign x15_a5 = FETCH_Instr_Regs_value_a0[15]; // Function Argument
+                           assign x16_a6 = FETCH_Instr_Regs_value_a0[16]; // Function Argument
+                           assign x17_a7 = FETCH_Instr_Regs_value_a0[17]; // Function Argument
+                           
+                           assign x18_s2 = FETCH_Instr_Regs_value_a0[18]; // Saved Register
+                           assign x19_s3 = FETCH_Instr_Regs_value_a0[19]; // Saved Register
+                           assign x20_s4 = FETCH_Instr_Regs_value_a0[20]; // Saved Register
+                           assign x21_s5 = FETCH_Instr_Regs_value_a0[21]; // Saved Register
+                           assign x22_s6 = FETCH_Instr_Regs_value_a0[22]; // Saved Register
+                           assign x23_s7 = FETCH_Instr_Regs_value_a0[23]; // Saved Register
+                           assign x24_s8 = FETCH_Instr_Regs_value_a0[24]; // Saved Register
+                           assign x25_s9 = FETCH_Instr_Regs_value_a0[25]; // Saved Register
+                           assign x26_s10= FETCH_Instr_Regs_value_a0[26]; // Saved Register
+                           assign x27_s11= FETCH_Instr_Regs_value_a0[27]; // Saved Register
+                           
+                           assign x28_t3 = FETCH_Instr_Regs_value_a0[28]; // Temporary
+                           assign x29_t4 = FETCH_Instr_Regs_value_a0[29]; // Temporary
+                           assign x30_t5 = FETCH_Instr_Regs_value_a0[30]; // Temporary
+                           assign x31_t6 = FETCH_Instr_Regs_value_a0[31]; // Temporary
+
+
+                         
                         
                         
                         
