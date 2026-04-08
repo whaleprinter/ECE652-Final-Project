@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Tue Apr  7 23:44:49 2026
+[*] Wed Apr  8 00:08:00 2026
 [*]
 [dumpfile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/system_waves.vcd"
-[dumpfile_mtime] "Tue Apr  7 23:43:59 2026"
-[dumpfile_size] 453536
+[dumpfile_mtime] "Wed Apr  8 00:00:50 2026"
+[dumpfile_size] 338777
 [savefile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/clean_top.gtkw"
 [timestart] 0
 [size] 1333 600
-[pos] -1 -1
-*-17.000000 199200 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[pos] 51 -1
+*-17.000000 197200 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
 [markername] CC
@@ -38,11 +38,10 @@
 [markername] ZZ
 [treeopen] tb_system.
 [treeopen] tb_system.uut.
-[treeopen] tb_system.uut.core0_l1i.
 [sst_width] 255
 [signals_width] 292
 [sst_expanded] 1
-[sst_vpaned_height] 159
+[sst_vpaned_height] 282
 @28
 tb_system.uut.clk
 tb_system.uut.reset
@@ -58,7 +57,14 @@ tb_system.uut.core0_l1i.address[31:0]
 @22
 [color] 5
 tb_system.uut.core0_l1i.data[31:0]
-@23
-tb_system.uut.core1.FETCH_Instr_Pc_a0[31:0]
+@28
+tb_system.uut.core0_l1.cpu_stall
+tb_system.uut.core0_l1.cpu_req
+tb_system.uut.arbiter.state[2:0]
+tb_system.uut.arbiter.c0_bus_req
+tb_system.uut.arbiter.c1_bus_req
+tb_system.uut.arbiter.c0_bus_grant
+@22
+tb_system.uut.arbiter.c1_snoop_addr[31:0]
 [pattern_trace] 1
 [pattern_trace] 0
