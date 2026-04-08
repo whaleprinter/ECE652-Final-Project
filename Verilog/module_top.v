@@ -290,7 +290,6 @@ module system_top (
         .clk(clk),
         .reset(reset),
         
-        // Tie Data Memory to always return 0 and never stall
         .dmem_rdata_in(c0_rdata),
         .dmem_stall_in(c0_stall), // SHOULD BE c0_stall, but the whole thing freezes when I do that. 
         
@@ -298,11 +297,9 @@ module system_top (
         .dmem_wdata_out(c0_wdata),
         .dmem_we_out(c0_we),
         .dmem_req_out(c0_req),
-
-        // Hardcode the Instruction Memory to always return NOP (addi x0, x0, 0)
-        // and never stall.
+=
         .imem_rdata_in(c0_imem_rdata),
-        .imem_stall_in(1'b0), // THIS LINE IS THE PROBLEM!!!!!
+        .imem_stall_in(1'b0), 
         
         .imem_addr_out(c0_imem_addr),
         .imem_req_out(c0_imem_req),
@@ -349,19 +346,16 @@ module system_top (
         .clk(clk),
         .reset(reset),
         
-        // Tie Data Memory to always return 0 and never stall
         .dmem_rdata_in(c1_rdata),
-        .dmem_stall_in(1'b0),
+        .dmem_stall_in(c1_stall),
         
         .dmem_addr_out(c1_addr),
         .dmem_wdata_out(c1_wdata),
         .dmem_we_out(c1_we),
         .dmem_req_out(c1_req),
 
-        // Hardcode the Instruction Memory to always return NOP (addi x0, x0, 0)
-        // and never stall.
         .imem_rdata_in(c1_imem_rdata),
-        .imem_stall_in(1'b0), // THIS LINE IS THE PROBLEM!!!!!
+        .imem_stall_in(1'b0), 
         
         .imem_addr_out(c1_imem_addr),
         .imem_req_out(c1_imem_req),
