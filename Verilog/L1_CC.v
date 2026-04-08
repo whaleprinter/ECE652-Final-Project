@@ -58,9 +58,9 @@
     //   [3:2]   word offset
     //   [1:0]   byte offset 
 
-    wire [19:0] req_tag    = cpu_addr[31:12];
-    wire  [7:0] req_index  = cpu_addr[11:4];
-    wire  [1:0] req_offset = cpu_addr[3:2];
+    // wire [19:0] req_tag    = cpu_addr[31:12];
+    // wire  [7:0] req_index  = cpu_addr[11:4];
+    // wire  [1:0] req_offset = cpu_addr[3:2];
 
     wire [19:0] snp_tag   = snoop_addr[31:12];
     wire  [7:0] snp_index = snoop_addr[11:4];
@@ -70,6 +70,54 @@
     reg          dcache_ctrl_we;
     reg  [127:0] dcache_ctrl_wdata;
     wire [127:0] dcache_ctrl_rdata;
+
+    // BEGIN NEW
+
+
+    // ==========================================
+    // 1. SNAPSHOT BUFFER (The Request Latch)
+    // ==========================================
+    reg        hold_req;
+    reg [31:0] hold_addr;
+    reg        hold_we;
+    reg [31:0] hold_wdata;
+
+    // Detect if the Arbiter is handing us data this exact cycle
+    wire data_just_arrived = (bus_ready && !evict_active);
+    wire fill_match        = data_just_arrived && (hold_addr[31:4] == cpu_addr[31:4]);
+
+    always @(posedge clk) begin
+        if (reset) begin
+            hold_req <= 0;
+        end else if (cpu_req && cpu_stall && !hold_req) begin
+            // Lock the vault on a miss
+            hold_req   <= 1;
+            hold_addr  <= cpu_addr;
+            hold_we    <= cpu_we;
+            hold_wdata <= cpu_wdata;
+        end else if (stall_counter == 4'd1) begin // Revert to else if fill_match
+            // Unlock the vault when data arrives
+            hold_req <= 0;
+        end
+    end
+
+    // Use these wires for ALL cache logic below this point!
+    wire        eff_cpu_req   = hold_req ? 1'b1       : cpu_req;
+    wire [31:0] eff_cpu_addr  = hold_req ? hold_addr  : cpu_addr;
+    wire        eff_cpu_we    = hold_req ? hold_we    : cpu_we;
+    wire [31:0] eff_cpu_wdata = hold_req ? hold_wdata : cpu_wdata;
+
+    // ==========================================
+    // 2. MEALY BUS REQUEST (No 1-Cycle Delay)
+    // ==========================================
+    // assign bus_req = (eff_cpu_req && cache_needs_stall) || evict_active;
+
+
+    // END NEW
+
+    wire [19:0] req_tag    = eff_cpu_addr[31:12];
+    wire  [7:0] req_index  = eff_cpu_addr[11:4];
+    wire  [1:0] req_offset = eff_cpu_addr[3:2];
 
     // Word write enable: only write CPU data when needed
     wire dcache_cpu_we = cpu_req & cpu_we & ~cpu_stall;
@@ -81,7 +129,7 @@
         .index           (active_index),
         .offset          (req_offset),
         .word_write_enable (dcache_cpu_we),
-        .word_write_data   (cpu_wdata),
+        .word_write_data   (eff_cpu_wdata),
         .word_read_data    (cpu_rdata),
         .ctrl_write_enable (dcache_ctrl_we),
         .ctrl_write_data   (dcache_ctrl_wdata),
@@ -101,15 +149,74 @@
     reg evict_active;
 
 
+    // wire is_stable = (states[req_index] == I || states[req_index] == S || states[req_index] == M);
+
+    // BEGIN NEW
+
+    // ==========================================
+    // 3. STALL LOGIC & DATA BYPASS
+    // ==========================================
     wire is_stable = (states[req_index] == I || states[req_index] == S || states[req_index] == M);
 
-    // Freeze CPU instantly if it makes a request and the cache is not ready
-    assign cpu_stall = cpu_req && (
+    wire cache_needs_stall = (
         (states[req_index] == I) || 
-        (states[req_index] == S && cpu_we) || 
+        (states[req_index] == S && eff_cpu_we) || 
         (!tag_match && states[req_index] != I) || 
         (!is_stable)
     );
+
+    // Freeze CPU instantly, but drop the stall the exact cycle fill_match is true
+    // assign cpu_stall = eff_cpu_req && cache_needs_stall && !fill_match;
+    // ==========================================
+    // 3. STALL LOGIC (10-Cycle Fixed Timer)
+    // ==========================================
+    reg [3:0] stall_counter;
+
+                    // The 10-Cycle Countdown Timer
+                    always @(posedge clk) begin
+                        if (reset) begin
+                            stall_counter <= 4'd0;
+                        end else begin
+                            // Cycle 0: A miss is detected. Start the timer at 10.
+                            if (eff_cpu_req && cache_needs_stall && stall_counter == 0) begin
+                                stall_counter <= 4'd10; 
+                            end 
+                            // Cycle 1-10: Count down to zero.
+                            else if (stall_counter > 0) begin
+                                stall_counter <= stall_counter - 4'd1; 
+                            end
+                        end
+                    end
+
+                    // STALL ASSERTION:
+                    // Freeze instantly on Cycle 0 (combinatorial), and keep it frozen while counting > 0.
+                    // The exact moment stall_counter hits 0, this drops to 0, and the CPU wakes up.
+                    assign cpu_stall = (eff_cpu_req && cache_needs_stall && stall_counter == 0) || (stall_counter > 0);
+
+    // Route incoming Arbiter/Snoop data directly to the CPU if it's arriving right now
+    wire [127:0] incoming_line = link_push_valid ? link_data_in : bus_rdata;
+    reg [31:0] incoming_word;
+    always @(*) begin
+        case (req_offset)
+            2'b00: incoming_word = incoming_line[31:0];
+            2'b01: incoming_word = incoming_line[63:32];
+            2'b10: incoming_word = incoming_line[95:64];
+            2'b11: incoming_word = incoming_line[127:96];
+        endcase
+    end
+
+    // sram_word_read_data is the wire coming OUT of your L1D_cache module
+    assign cpu_rdata = fill_match ? incoming_word : dcache_ctrl_rdata;
+
+    // END NEW
+
+    // // Freeze CPU instantly if it makes a request and the cache is not ready
+    // assign cpu_stall = cpu_req && (
+    //     (states[req_index] == I) || 
+    //     (states[req_index] == S && cpu_we) || 
+    //     (!tag_match && states[req_index] != I) || 
+    //     (!is_stable)
+    // );
 
     
 
@@ -191,9 +298,9 @@
 
             // Response
 
-            if (bus_grant)
+            if (bus_grant) begin
                 bus_req <= 0;
-
+            end 
             if (bus_ready) begin
                 if (evict_active) begin
                     // PutM acknowledged, so now issue original request for the block
@@ -258,7 +365,7 @@
                             // cpu_stall          <= 1;
                             saved_cpu_we       <= cpu_we;
                             saved_cpu_addr     <= cpu_addr;
-                            bus_req            <= 1;
+                            // bus_req            <= 1;
                             bus_addr           <= cpu_addr;
                             if (cpu_we) begin
                                 bus_we            <= 1;
@@ -274,7 +381,7 @@
                                 // cpu_stall          <= 1;
                                 saved_cpu_we       <= cpu_we;
                                 saved_cpu_addr     <= cpu_addr;
-                                bus_req            <= 1;
+                                // bus_req            <= 1;
                                 bus_we             <= 1;   // GetM 
                                 bus_addr           <= cpu_addr;
                                 states[req_index]  <= SM_D;
@@ -289,7 +396,7 @@
                             saved_cpu_we   <= cpu_we;
                             saved_cpu_addr <= cpu_addr;
                             evict_active   <= 1;
-                            bus_req        <= 1;
+                            // bus_req        <= 1;
                             bus_we         <= 1;   // PutM writeback
                             bus_addr       <= {tags[req_index], req_index, 4'b0};
                             bus_wdata      <= dcache_ctrl_rdata;

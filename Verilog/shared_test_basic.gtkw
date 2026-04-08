@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Wed Apr  8 18:14:35 2026
+[*] Wed Apr  8 21:47:47 2026
 [*]
 [dumpfile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/system_waves.vcd"
-[dumpfile_mtime] "Wed Apr  8 18:12:08 2026"
-[dumpfile_size] 471557
+[dumpfile_mtime] "Wed Apr  8 21:46:35 2026"
+[dumpfile_size] 474926
 [savefile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/shared_test_basic.gtkw"
 [timestart] 0
-[size] 1613 838
+[size] 1754 980
 [pos] -1 -1
-*-16.000000 198900 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+*-16.000000 231000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
 [markername] CC
@@ -41,7 +41,7 @@
 [sst_width] 255
 [signals_width] 461
 [sst_expanded] 1
-[sst_vpaned_height] 437
+[sst_vpaned_height] 712
 @28
 tb_system.uut.clk
 tb_system.uut.reset
@@ -118,7 +118,7 @@ tb_system.uut.arbiter.l2_req
 @c00023
 [color] 6
 tb_system.uut.arbiter.l2_wdata[127:0]
-@28
+@29
 [color] 6
 (0)tb_system.uut.arbiter.l2_wdata[127:0]
 [color] 6

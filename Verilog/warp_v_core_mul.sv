@@ -3944,7 +3944,7 @@ endgenerate
             
             
                         // Execute stage redirect conditions.
-                        assign FETCH_Instr_replay_trap_a0 = dmem_stall_in || imem_stall_in;
+                        assign FETCH_Instr_replay_trap_a0 = 1'b0; // dmem_stall_in || imem_stall_in; // THIS LINE COULD BE THE PROBLEM 
                         assign FETCH_Instr_aborting_trap_a0 = (FETCH_Instr_replay_trap_a0 || (FETCH_Instr_valid_decode_a0 && FETCH_Instr_illegal_a0) || FETCH_Instr_aborting_isa_trap_a0);
                         assign FETCH_Instr_non_aborting_trap_a0 = FETCH_Instr_non_aborting_isa_trap_a0;
                         assign FETCH_Instr_mispred_branch_a0 = FETCH_Instr_branch_a0 && ! (FETCH_Instr_conditional_branch_a0 && (FETCH_Instr_taken_a0 == FETCH_Instr_pred_taken_a0));

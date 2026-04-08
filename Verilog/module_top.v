@@ -292,7 +292,7 @@ module system_top (
         
         // Tie Data Memory to always return 0 and never stall
         .dmem_rdata_in(c0_rdata),
-        .dmem_stall_in(1'b0), // SHOULD BE c0_stall, but the whole thing freezes when I do that. 
+        .dmem_stall_in(c0_stall), // SHOULD BE c0_stall, but the whole thing freezes when I do that. 
         
         .dmem_addr_out(c0_addr),
         .dmem_wdata_out(c0_wdata),
