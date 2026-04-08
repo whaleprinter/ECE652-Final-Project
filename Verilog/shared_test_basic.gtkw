@@ -1,0 +1,385 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Wed Apr  8 18:14:35 2026
+[*]
+[dumpfile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/system_waves.vcd"
+[dumpfile_mtime] "Wed Apr  8 18:12:08 2026"
+[dumpfile_size] 471557
+[savefile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/shared_test_basic.gtkw"
+[timestart] 0
+[size] 1613 838
+[pos] -1 -1
+*-16.000000 198900 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[treeopen] tb_system.
+[treeopen] tb_system.uut.
+[sst_width] 255
+[signals_width] 461
+[sst_expanded] 1
+[sst_vpaned_height] 437
+@28
+tb_system.uut.clk
+tb_system.uut.reset
++{Arbiter State} tb_system.uut.arbiter.state[2:0]
+@24
+[color] 5
+tb_system.uut.core0.FETCH_Instr_Pc_a0[31:0]
+[color] 5
+tb_system.uut.c0_imem_addr[31:0]
+@22
+[color] 5
+tb_system.uut.c0_imem_rdata[31:0]
+@420
+[color] 5
+tb_system.uut.c0_r1[31:0]
+[color] 5
+tb_system.uut.c0_r2[31:0]
+[color] 5
+tb_system.uut.c0_r3[31:0]
+[color] 5
+tb_system.uut.c0_r4[31:0]
+[color] 5
+tb_system.uut.c0_r5[31:0]
+@28
+[color] 3
+tb_system.uut.arbiter.c0_bus_req
+[color] 3
+tb_system.uut.arbiter.c0_bus_grant
+[color] 3
+tb_system.uut.arbiter.c0_bus_we
+[color] 3
+tb_system.uut.arbiter.c0_snoop_req
+@24
+[color] 3
+tb_system.uut.arbiter.c0_bus_addr[31:0]
+@28
+[color] 3
+tb_system.uut.core0_l1.cpu_stall
+tb_system.uut.arbiter.c0_bus_ready
+@24
+[color] 2
+tb_system.uut.core1.FETCH_Instr_Pc_a0[31:0]
+[color] 2
+tb_system.uut.c1_imem_addr[31:0]
+@22
+[color] 2
+tb_system.uut.c1_imem_rdata[31:0]
+@420
+[color] 2
+tb_system.uut.c1_r1[31:0]
+[color] 2
+tb_system.uut.c1_r2[31:0]
+[color] 2
+tb_system.uut.c1_r3[31:0]
+[color] 2
+tb_system.uut.c1_r4[31:0]
+[color] 2
+tb_system.uut.c1_r5[31:0]
+@28
+[color] 4
+tb_system.uut.arbiter.c1_bus_req
+[color] 4
+tb_system.uut.arbiter.c1_bus_grant
+[color] 4
+tb_system.uut.arbiter.c1_bus_we
+[color] 4
+tb_system.uut.arbiter.c1_snoop_req
+@24
+[color] 4
+tb_system.uut.arbiter.c1_bus_addr[31:0]
+@28
+[color] 6
+tb_system.uut.arbiter.l2_req
+@c00023
+[color] 6
+tb_system.uut.arbiter.l2_wdata[127:0]
+@28
+[color] 6
+(0)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(1)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(2)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(3)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(4)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(5)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(6)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(7)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(8)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(9)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(10)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(11)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(12)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(13)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(14)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(15)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(16)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(17)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(18)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(19)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(20)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(21)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(22)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(23)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(24)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(25)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(26)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(27)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(28)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(29)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(30)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(31)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(32)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(33)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(34)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(35)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(36)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(37)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(38)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(39)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(40)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(41)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(42)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(43)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(44)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(45)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(46)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(47)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(48)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(49)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(50)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(51)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(52)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(53)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(54)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(55)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(56)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(57)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(58)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(59)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(60)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(61)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(62)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(63)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(64)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(65)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(66)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(67)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(68)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(69)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(70)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(71)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(72)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(73)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(74)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(75)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(76)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(77)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(78)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(79)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(80)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(81)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(82)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(83)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(84)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(85)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(86)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(87)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(88)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(89)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(90)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(91)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(92)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(93)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(94)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(95)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(96)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(97)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(98)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(99)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(100)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(101)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(102)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(103)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(104)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(105)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(106)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(107)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(108)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(109)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(110)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(111)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(112)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(113)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(114)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(115)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(116)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(117)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(118)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(119)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(120)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(121)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(122)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(123)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(124)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(125)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(126)tb_system.uut.arbiter.l2_wdata[127:0]
+[color] 6
+(127)tb_system.uut.arbiter.l2_wdata[127:0]
+@1401201
+-group_end
+@28
+[color] 6
+tb_system.uut.arbiter.l2_we
+tb_system.uut.arbiter.l2_ready
+[pattern_trace] 1
+[pattern_trace] 0

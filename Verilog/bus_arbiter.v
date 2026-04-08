@@ -42,6 +42,8 @@ module bus_arbiter (
 );
 
     // FSM States
+
+    // Cores can only make requests on their designated cycles.
     localparam IDLE      = 3'd0;
     localparam SNOOP_C1  = 3'd1;
     localparam SNOOP_C0  = 3'd2;
@@ -58,7 +60,7 @@ module bus_arbiter (
             c0_bus_grant <= 0; c1_bus_grant <= 0;
             c0_bus_ready <= 0; c1_bus_ready <= 0;
             c0_snoop_req <= 0; c1_snoop_req <= 0;
-            l2_req <= 0;
+            l2_req <= 0; l2_we <= 0; l2_wdata <= 0;
         end else begin
 
             c0_bus_ready <= 0;
@@ -70,7 +72,7 @@ module bus_arbiter (
                     c0_snoop_req <= 0;
                     c1_snoop_req <= 0;
 
-
+                    // Other core will be in transient state
                     if (c0_bus_req && c1_bus_req) begin
                         if (core_priority == 0) begin
                             serving_c0 <= 1;

@@ -1,0 +1,94 @@
+From the bottom of module_top.v:
+    // reg [31:0] c0_imem_rdata_reg;
+    // reg        c0_imem_valid;
+
+    // always @(posedge clk) begin
+    //     if (reset) begin
+    //         c0_imem_valid <= 0;
+    //     end else begin
+    //         if (c0_imem_req) begin
+    //             c0_imem_rdata_reg <= c0_imem_rdata; // from L1I
+    //             c0_imem_valid <= 1;
+    //         end else begin
+    //             c0_imem_valid <= 0;
+    //         end
+    //     end
+    // end
+
+// reg [3:0] reset_counter;
+
+// always @(posedge clk) begin
+//     if (reset)
+//         reset_counter <= 0;
+//     else if (reset_counter != 4'hF)
+//         reset_counter <= reset_counter + 1;
+// end
+
+// wire init_done = (reset_counter == 4'hF);
+
+    // warp_v_core uut (
+    //     .clk(clk),
+    //     .reset(reset),
+        
+    //     // Tie Data Memory to always return 0 and never stall
+    //     .dmem_rdata_in(32'b0),
+    //     .dmem_stall_in(1'b0),
+        
+    //     .dmem_addr_out(dmem_addr_out),
+    //     .dmem_wdata_out(dmem_wdata_out),
+    //     .dmem_we_out(dmem_we_out),
+    //     .dmem_req_out(dmem_req_out),
+
+    //     // Hardcode the Instruction Memory to always return NOP (addi x0, x0, 0)
+    //     // and never stall.
+    //     .imem_rdata_in(32'h00000013),
+    //     .imem_stall_in(1'b0),
+        
+    //     .imem_addr_out(imem_addr_out),
+    //     .imem_req_out(imem_req_out)
+    // );
+
+    // warp_v_core core0(
+    //     .clk(clk),
+    //     .reset(reset),
+    //     .dmem_addr_out(c0_addr),
+    //     .dmem_wdata_out(c0_wdata),
+    //     .dmem_we_out(c0_we),
+    //     .dmem_req_out(c0_req),
+    //     .dmem_rdata_in(c0_rdata),
+    //     .dmem_stall_in(c0_stall),
+    //     .imem_addr_out(c0_imem_addr),
+    //     .imem_req_out(c0_imem_req),
+    //     .imem_rdata_in(32'h00000013), // DEBUG
+    //     .imem_stall_in(1'b0) // DEBUG
+    //     // .imem_rdata_in(c0_imem_req ? c0_imem_rdata : 32'b0), // Provide valid data only when request is active
+    //     // .imem_stall_in(c0_stall)//reset ? 1'b1 : c0_stall)
+    // );
+
+//     always @(posedge clk) begin
+//     if (c0_imem_req) begin
+//         $display("PC=%h INSTR=%h", c0_imem_addr, c0_imem_rdata);
+//     end
+// end
+
+// always @(posedge clk) begin
+//     if (^c0_imem_addr === 1'bx)
+//         $display("PC became X at time %t", $time);
+// end
+
+    // warp_v_core #(
+    //     .INIT_FILE("basic_test.hex")
+    // ) core1 (
+    //     .clk(clk),
+    //     .reset(reset),
+    //     .dmem_addr_out(c1_addr),
+    //     .dmem_wdata_out(c1_wdata),
+    //     .dmem_we_out(c1_we),
+    //     .dmem_req_out(c1_req),
+    //     .dmem_rdata_in(c1_rdata),
+    //     .dmem_stall_in(c1_stall)
+        // .imem_addr_out(c1_imem_addr),
+        // .imem_req_out(c1_imem_req),
+        // .imem_rdata_in(c1_imem_req ? c1_imem_rdata : 32'b0),
+        // .imem_stall_in(c1_stall)
+    // );

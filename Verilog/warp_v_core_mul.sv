@@ -1323,7 +1323,13 @@ reg  LD_BUFF_OUT_Instr_valid_ld_a1;
          always @(posedge clk) FETCH_Instr_GoodPathMask_a0[1+1:0] <= FETCH_Instr_GoodPathMask_n1[1+1:0];
 
          // Staging of $Pc.
-         always @(posedge clk) FETCH_Instr_Pc_a0[31:0] <= FETCH_Instr_Pc_n1[31:0];
+         // always @(posedge clk) FETCH_Instr_Pc_a0[31:0] <= FETCH_Instr_Pc_n1[31:0];
+         // MODIFIED: Update PC only when not stalled
+         always @(posedge clk) begin
+            if (!dmem_stall_in) begin
+               FETCH_Instr_Pc_a0[31:0] <= FETCH_Instr_Pc_n1[31:0];
+            end
+         end
 
          // Staging of $RemainingCyclesWithinTimeUnit.
          always @(posedge clk) FETCH_Instr_RemainingCyclesWithinTimeUnit_a0[30-1:0] <= FETCH_Instr_RemainingCyclesWithinTimeUnit_n1[30-1:0];
@@ -4180,7 +4186,7 @@ endgenerate
                                  // Reg Write (Floating Point Register)
                                  /*SV_plus*/
                                     always @ (posedge clk) begin
-                                       if (FETCH_Instr_commit_dest_reg_a0)
+                                       if (FETCH_Instr_commit_dest_reg_a0 && !dmem_stall_in) // ONLY COMMIT IF NOT STALLED
                                           FETCH_Instr_Regs_value_a0[FETCH_Instr_wr_reg_a0][31:0] <= FETCH_Instr_rslt_a0;
                                     end
                               //_\end_source

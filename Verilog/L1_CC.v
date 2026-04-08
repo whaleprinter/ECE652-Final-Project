@@ -101,9 +101,6 @@
     reg evict_active;
 
 
-    // ==========================================
-    // COMBINATORIAL STALL LOGIC
-    // ==========================================
     wire is_stable = (states[req_index] == I || states[req_index] == S || states[req_index] == M);
 
     // Freeze CPU instantly if it makes a request and the cache is not ready
