@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Wed Apr  8 21:47:47 2026
+[*] Wed Apr  8 22:00:28 2026
 [*]
 [dumpfile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/system_waves.vcd"
-[dumpfile_mtime] "Wed Apr  8 21:46:35 2026"
-[dumpfile_size] 474926
+[dumpfile_mtime] "Wed Apr  8 21:49:46 2026"
+[dumpfile_size] 473974
 [savefile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/shared_test_basic.gtkw"
-[timestart] 0
+[timestart] 67700
 [size] 1754 980
 [pos] -1 -1
-*-16.000000 231000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+*-16.000000 239400 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
 [markername] CC
@@ -39,9 +39,9 @@
 [treeopen] tb_system.
 [treeopen] tb_system.uut.
 [sst_width] 255
-[signals_width] 461
+[signals_width] 430
 [sst_expanded] 1
-[sst_vpaned_height] 712
+[sst_vpaned_height] 514
 @28
 tb_system.uut.clk
 tb_system.uut.reset
@@ -77,6 +77,8 @@ tb_system.uut.arbiter.c0_snoop_req
 @24
 [color] 3
 tb_system.uut.arbiter.c0_bus_addr[31:0]
+@421
+tb_system.uut.core0_l1.cpu_wdata[31:0]
 @28
 [color] 3
 tb_system.uut.core0_l1.cpu_stall
@@ -115,10 +117,10 @@ tb_system.uut.arbiter.c1_bus_addr[31:0]
 @28
 [color] 6
 tb_system.uut.arbiter.l2_req
-@c00023
+@c00022
 [color] 6
 tb_system.uut.arbiter.l2_wdata[127:0]
-@29
+@28
 [color] 6
 (0)tb_system.uut.arbiter.l2_wdata[127:0]
 [color] 6
@@ -375,8 +377,10 @@ tb_system.uut.arbiter.l2_wdata[127:0]
 (126)tb_system.uut.arbiter.l2_wdata[127:0]
 [color] 6
 (127)tb_system.uut.arbiter.l2_wdata[127:0]
-@1401201
+@1401200
 -group_end
+@24
+tb_system.uut.main_memory.rdata[127:0]
 @28
 [color] 6
 tb_system.uut.arbiter.l2_we

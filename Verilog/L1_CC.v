@@ -95,7 +95,7 @@
             hold_addr  <= cpu_addr;
             hold_we    <= cpu_we;
             hold_wdata <= cpu_wdata;
-        end else if (stall_counter == 4'd1) begin // Revert to else if fill_match
+        end else if (fill_match) begin // Revert to else if fill_match
             // Unlock the vault when data arrives
             hold_req <= 0;
         end
@@ -170,29 +170,35 @@
     // ==========================================
     // 3. STALL LOGIC (10-Cycle Fixed Timer)
     // ==========================================
-    reg [3:0] stall_counter;
+                    // reg [3:0] stall_counter;
 
-                    // The 10-Cycle Countdown Timer
-                    always @(posedge clk) begin
-                        if (reset) begin
-                            stall_counter <= 4'd0;
-                        end else begin
-                            // Cycle 0: A miss is detected. Start the timer at 10.
-                            if (eff_cpu_req && cache_needs_stall && stall_counter == 0) begin
-                                stall_counter <= 4'd10; 
-                            end 
-                            // Cycle 1-10: Count down to zero.
-                            else if (stall_counter > 0) begin
-                                stall_counter <= stall_counter - 4'd1; 
-                            end
-                        end
-                    end
+                    // // The 10-Cycle Countdown Timer
+                    // always @(posedge clk) begin
+                    //     if (reset) begin
+                    //         stall_counter <= 4'd0;
+                    //     end else begin
+                    //         // Cycle 0: A miss is detected. Start the timer at 10.
+                    //         if (eff_cpu_req && cache_needs_stall && stall_counter == 0) begin
+                    //             stall_counter <= 4'd10; 
+                    //         end 
+                    //         // Cycle 1-10: Count down to zero.
+                    //         else if (stall_counter > 0) begin
+                    //             stall_counter <= stall_counter - 4'd1; 
+                    //         end
+                    //     end
+                    // end
 
-                    // STALL ASSERTION:
-                    // Freeze instantly on Cycle 0 (combinatorial), and keep it frozen while counting > 0.
-                    // The exact moment stall_counter hits 0, this drops to 0, and the CPU wakes up.
-                    assign cpu_stall = (eff_cpu_req && cache_needs_stall && stall_counter == 0) || (stall_counter > 0);
-
+                    // // STALL ASSERTION:
+                    // // Freeze instantly on Cycle 0 (combinatorial), and keep it frozen while counting > 0.
+                    // // The exact moment stall_counter hits 0, this drops to 0, and the CPU wakes up.
+                    // assign cpu_stall = (eff_cpu_req && cache_needs_stall && stall_counter == 0) || (stall_counter > 0);
+    // ==========================================
+    // 3. STALL LOGIC & DATA BYPASS
+    // ==========================================
+    // FREEZE OVERRIDE: 
+    // Freeze instantly on a miss.
+    // Drop the stall on the exact cycle the Arbiter returns the data (!fill_match).
+    assign cpu_stall = eff_cpu_req && cache_needs_stall && !fill_match;
     // Route incoming Arbiter/Snoop data directly to the CPU if it's arriving right now
     wire [127:0] incoming_line = link_push_valid ? link_data_in : bus_rdata;
     reg [31:0] incoming_word;
