@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Wed Apr  8 22:15:00 2026
+[*] Thu Apr  9 00:28:38 2026
 [*]
 [dumpfile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/system_waves.vcd"
-[dumpfile_mtime] "Wed Apr  8 22:07:44 2026"
-[dumpfile_size] 492158
+[dumpfile_mtime] "Wed Apr  8 23:59:51 2026"
+[dumpfile_size] 490964
 [savefile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/shared_test_basic.gtkw"
-[timestart] 86200
+[timestart] 157700
 [size] 1754 980
 [pos] -1 -1
-*-16.000000 287100 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+*-16.000000 335000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
 [markername] CC
@@ -39,9 +39,9 @@
 [treeopen] tb_system.
 [treeopen] tb_system.uut.
 [sst_width] 255
-[signals_width] 430
+[signals_width] 671
 [sst_expanded] 1
-[sst_vpaned_height] 349
+[sst_vpaned_height] 434
 @28
 tb_system.uut.clk
 tb_system.uut.reset
@@ -82,45 +82,60 @@ tb_system.uut.core0_l1.cpu_wdata[31:0]
 @28
 [color] 3
 tb_system.uut.core0_l1.cpu_stall
+[color] 3
 tb_system.uut.arbiter.c0_bus_ready
+[color] 3
 tb_system.uut.c0_snoop_hit
+[color] 3
 tb_system.uut.c0_snoop_dirty
 @22
+tb_system.uut.core0_l1.snoop_addr[31:0]
+[color] 3
 tb_system.uut.core0_l1.link_data_in[127:0]
-@23
+@420
+[color] 3
 tb_system.uut.core0_l1.link_data_out[127:0]
 @24
-[color] 2
+[color] 5
 tb_system.uut.core1.FETCH_Instr_Pc_a0[31:0]
-[color] 2
+[color] 5
 tb_system.uut.c1_imem_addr[31:0]
-@22
-[color] 2
+@23
+[color] 5
 tb_system.uut.c1_imem_rdata[31:0]
 @420
-[color] 2
+[color] 5
 tb_system.uut.c1_r1[31:0]
-[color] 2
+[color] 5
 tb_system.uut.c1_r2[31:0]
-[color] 2
+[color] 5
 tb_system.uut.c1_r3[31:0]
-[color] 2
+[color] 5
 tb_system.uut.c1_r4[31:0]
-[color] 2
+[color] 5
 tb_system.uut.c1_r5[31:0]
 @28
-[color] 4
+[color] 3
 tb_system.uut.arbiter.c1_bus_req
-[color] 4
+[color] 3
 tb_system.uut.arbiter.c1_bus_grant
-[color] 4
+[color] 3
 tb_system.uut.arbiter.c1_bus_we
-[color] 4
+[color] 3
 tb_system.uut.arbiter.c1_snoop_req
 @24
-[color] 4
+[color] 3
 tb_system.uut.arbiter.c1_bus_addr[31:0]
+@420
+[color] 3
+tb_system.uut.core1_l1.cpu_wdata[31:0]
 @28
+[color] 3
+tb_system.uut.core1_l1.cpu_stall
+[color] 3
+tb_system.uut.c1_bus_ready
+[color] 3
+tb_system.uut.c1_snoop_hit
 [color] 6
 tb_system.uut.arbiter.l2_req
 @c00022

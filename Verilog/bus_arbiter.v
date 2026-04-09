@@ -61,6 +61,7 @@ module bus_arbiter (
             c0_bus_ready <= 0; c1_bus_ready <= 0;
             c0_snoop_req <= 0; c1_snoop_req <= 0;
             l2_req <= 0; l2_we <= 0; l2_wdata <= 0;
+            c0_snoop_addr <= 0; c1_snoop_addr <= 0;
         end else begin
 
             c0_bus_ready <= 0;

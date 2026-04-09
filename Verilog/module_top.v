@@ -297,7 +297,7 @@ module system_top (
         .dmem_wdata_out(c0_wdata),
         .dmem_we_out(c0_we),
         .dmem_req_out(c0_req),
-=
+
         .imem_rdata_in(c0_imem_rdata),
         .imem_stall_in(1'b0), 
         

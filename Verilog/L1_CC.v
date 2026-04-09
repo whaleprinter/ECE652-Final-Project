@@ -22,7 +22,7 @@
 
     // Core to core transfers
     output reg          link_push_req,  // Push dirty data to requesting core
-    output reg  [127:0] link_data_out,  // Data being forwarded
+    output wire  [127:0] link_data_out,  // Data being forwarded
     input  wire         link_push_valid,// Incoming C2C data is valid this cycle
     input  wire [127:0] link_data_in,   // Incoming C2C forwarded data
 
@@ -30,8 +30,8 @@
     input  wire         snoop_req,      // C0_check_L1
     input  wire  [31:0] snoop_addr,     // C0_L1_address
     input  wire         snoop_type,     // 0=GetS (read), 1=GetM (write/invalidate)
-    output reg          snoop_hit,      // C0_L1_hit
-    output reg          snoop_dirty     // C0_L1_dirty
+    output wire          snoop_hit,      // C0_L1_hit
+    output wire          snoop_dirty     // C0_L1_dirty
 );
 
     
@@ -65,7 +65,9 @@
     wire [19:0] snp_tag   = snoop_addr[31:12];
     wire  [7:0] snp_index = snoop_addr[11:4];
 
-    wire [7:0] active_index = snoop_req ? snp_index : req_index;
+    // wire [7:0] active_index = snoop_req ? snp_index : req_index;
+    // Hold the snoop index steady while we are pushing data across the link!
+    wire [7:0] active_index = (snoop_req || link_push_req) ? snp_index : req_index;
 
     reg          dcache_ctrl_we;
     reg  [127:0] dcache_ctrl_wdata;
@@ -139,6 +141,17 @@
     // Detect cache hit
     wire tag_match = (tags[req_index] == req_tag);
     wire hit       = tag_match && (states[req_index] != I);
+
+    // ==========================================
+    // 4. COMBINATORIAL SNOOP RESPONSES
+    // ==========================================
+    wire is_snoop_match = (tags[snp_index] == snp_tag) && (states[snp_index] != I);
+    
+    // Instantly answer the Arbiter
+    assign snoop_hit   = snoop_req && is_snoop_match;
+    assign snoop_dirty = snoop_req && is_snoop_match && (states[snp_index] == M);
+    // Instantly forward whatever the SRAM is currently reading
+    assign link_data_out = dcache_ctrl_rdata;
 
 
     // Need to save the CPU's original request address and write enable so that we can re-issue the correct bus request after evicting a dirty block 
@@ -239,9 +252,9 @@
             bus_we         <= 0;
             bus_wdata      <= 128'b0;
             link_push_req  <= 0;
-            link_data_out  <= 128'b0;
-            snoop_hit      <= 0;
-            snoop_dirty    <= 0;
+            // link_data_out  <= 128'b0;
+            // snoop_hit      <= 0;
+            // snoop_dirty    <= 0;
             dcache_ctrl_we    <= 0;
             dcache_ctrl_wdata <= 128'b0;
             evict_active   <= 0;
@@ -252,20 +265,20 @@
            
             dcache_ctrl_we <= 0;
             link_push_req  <= 0;
-            snoop_hit      <= 0;
-            snoop_dirty    <= 0;
+            // snoop_hit      <= 0;
+            // snoop_dirty    <= 0;
 
             if (snoop_req) begin
                 if (tags[snp_index] == snp_tag && states[snp_index] != I) begin
-                    snoop_hit <= 1;
+                    // snoop_hit <= 1;
 
                     case (states[snp_index])
 
                         M: begin
                             // dirty block so send data to requesting core via the link.
-                            snoop_dirty   <= 1;
+                            // snoop_dirty   <= 1;
                             link_push_req <= 1;
-                            link_data_out <= dcache_ctrl_rdata;
+                            // link_data_out <= dcache_ctrl_rdata;
 
                             if (snoop_type == 1) begin
                                 // GetM: another core wants exclusive ownership
@@ -280,7 +293,7 @@
 
                         S: begin
                             // Shared lines are always clean
-                            snoop_dirty <= 0;
+                            // snoop_dirty <= 0;
                             if (snoop_type == 1) begin
                                 // GetM --> S → I  
                                 states[snp_index] <= I;
@@ -290,13 +303,13 @@
 
                         // TODO: IMPLEMENT NACKS
                         IS_D, IM_D, SM_D: begin
-                            snoop_hit   <= 0;
-                            snoop_dirty <= 0;
+                            // snoop_hit   <= 0;
+                            // snoop_dirty <= 0;
                         end
 
                         default: begin
-                            snoop_hit   <= 0;
-                            snoop_dirty <= 0;
+                            // snoop_hit   <= 0;
+                            // snoop_dirty <= 0;
                         end
                     endcase
                 end
