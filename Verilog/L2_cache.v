@@ -49,21 +49,4 @@ module L2_cache(
 
 
 
-
-    // // Read
-    // always @(*) begin
-    //     rdata <= cache[addr[13:4]];
-    // end
-
-    // // Write
-    // always @(posedge clk) begin
-    //     if (we) cache[addr[13:4]] <= wdata;
-    // end
-
-    // assign ready = 1; 
-
-
-
-
-
 endmodule
