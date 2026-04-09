@@ -276,7 +276,7 @@ module system_top (
     );
 
     L1I_cache #(
-        .INIT_FILE("Hex_files/text_mem_evict_c1.hex") 
+        .INIT_FILE("Hex_files/test_mem_evict_c1.hex") 
     ) core1_l1i (
         .clk(clk),
         .reset(reset),
