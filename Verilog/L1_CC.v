@@ -69,9 +69,10 @@
     // Hold the snoop index steady while we are pushing data across the link!
     wire [7:0] active_index = (snoop_req || link_push_req) ? snp_index : req_index;
 
-    reg          dcache_ctrl_we;
-    reg  [127:0] dcache_ctrl_wdata;
+    wire          dcache_ctrl_we; // change back to reg if needed
+    wire [127:0] dcache_ctrl_wdata; // change back to reg if needed
     wire [127:0] dcache_ctrl_rdata;
+    wire   [31:0] sram_word_read_data; // ADD THIS WIRE
 
     // BEGIN NEW
 
@@ -122,17 +123,21 @@
     wire  [1:0] req_offset = eff_cpu_addr[3:2];
 
     // Word write enable: only write CPU data when needed
-    wire dcache_cpu_we = cpu_req & cpu_we & ~cpu_stall;
+    // wire dcache_cpu_we = cpu_req & cpu_we & ~cpu_stall;
+    // Only let the CPU use Port A if the Controller isn't actively filling a miss on Port B!
+    wire dcache_cpu_we = eff_cpu_req & eff_cpu_we & ~cpu_stall & ~data_just_arrived;
+    
 
-    wire [7:0] ctrl_index = (snoop_req || link_push_req) ? snp_index : saved_cpu_addr[11:4];
+    wire [7:0] ctrl_index = (snoop_req || link_push_req) ? snp_index : req_index;
 
     L1D_cache dcache (
         .clk             (clk),
-        .cpu_index       (active_index),
+        .cpu_index       (req_index), // Change back to active index???
         .offset          (req_offset),
         .word_write_enable (dcache_cpu_we),
         .word_write_data   (eff_cpu_wdata),
-        .word_read_data    (cpu_rdata),
+        // .word_read_data    (cpu_rdata),
+        .word_read_data      (sram_word_read_data), // USE THE NEW WIRE HERE!
 
         .ctrl_index        (ctrl_index),
         .ctrl_write_enable (dcache_ctrl_we),
@@ -168,9 +173,6 @@
 
     // BEGIN NEW
 
-    // ==========================================
-    // 3. STALL LOGIC & DATA BYPASS
-    // ==========================================
     wire is_stable = (states[req_index] == I || states[req_index] == S || states[req_index] == M);
 
     wire cache_needs_stall = (
@@ -180,42 +182,29 @@
         (!is_stable)
     );
 
-    // Freeze CPU instantly, but drop the stall the exact cycle fill_match is true
-    // assign cpu_stall = eff_cpu_req && cache_needs_stall && !fill_match;
-    // ==========================================
-    // 3. STALL LOGIC (10-Cycle Fixed Timer)
-    // ==========================================
-                    // reg [3:0] stall_counter;
-
-                    // // The 10-Cycle Countdown Timer
-                    // always @(posedge clk) begin
-                    //     if (reset) begin
-                    //         stall_counter <= 4'd0;
-                    //     end else begin
-                    //         // Cycle 0: A miss is detected. Start the timer at 10.
-                    //         if (eff_cpu_req && cache_needs_stall && stall_counter == 0) begin
-                    //             stall_counter <= 4'd10; 
-                    //         end 
-                    //         // Cycle 1-10: Count down to zero.
-                    //         else if (stall_counter > 0) begin
-                    //             stall_counter <= stall_counter - 4'd1; 
-                    //         end
-                    //     end
-                    // end
-
-                    // // STALL ASSERTION:
-                    // // Freeze instantly on Cycle 0 (combinatorial), and keep it frozen while counting > 0.
-                    // // The exact moment stall_counter hits 0, this drops to 0, and the CPU wakes up.
-                    // assign cpu_stall = (eff_cpu_req && cache_needs_stall && stall_counter == 0) || (stall_counter > 0);
-    // ==========================================
-    // 3. STALL LOGIC & DATA BYPASS
-    // ==========================================
     // FREEZE OVERRIDE: 
     // Freeze instantly on a miss.
     // Drop the stall on the exact cycle the Arbiter returns the data (!fill_match).
     assign cpu_stall = eff_cpu_req && cache_needs_stall && !fill_match;
-    // Route incoming Arbiter/Snoop data directly to the CPU if it's arriving right now
+
+
+    // ==========================================
+    // 5. THE WRITE MERGE MATRIX
+    // ==========================================
     wire [127:0] incoming_line = link_push_valid ? link_data_in : bus_rdata;
+    
+    // Splice the CPU's Store into the 128-bit block instantly
+    wire [127:0] merged_line;
+    assign merged_line[31:0]   = (eff_cpu_we && req_offset == 2'b00) ? eff_cpu_wdata : incoming_line[31:0];
+    assign merged_line[63:32]  = (eff_cpu_we && req_offset == 2'b01) ? eff_cpu_wdata : incoming_line[63:32];
+    assign merged_line[95:64]  = (eff_cpu_we && req_offset == 2'b10) ? eff_cpu_wdata : incoming_line[95:64];
+    assign merged_line[127:96] = (eff_cpu_we && req_offset == 2'b11) ? eff_cpu_wdata : incoming_line[127:96];
+
+    // Drive Port B combinatorially the exact cycle the data arrives
+    assign dcache_ctrl_we    = data_just_arrived;
+    assign dcache_ctrl_wdata = merged_line;
+    // Route incoming Arbiter/Snoop data directly to the CPU if it's arriving right now
+    // wire [127:0] incoming_line = link_push_valid ? link_data_in : bus_rdata;
     reg [31:0] incoming_word;
     always @(*) begin
         case (req_offset)
@@ -227,7 +216,7 @@
     end
 
     // sram_word_read_data is the wire coming OUT of your L1D_cache module
-    assign cpu_rdata = fill_match ? incoming_word : dcache_ctrl_rdata;
+    assign cpu_rdata = fill_match ? incoming_word : sram_word_read_data;
 
     // END NEW
 
@@ -257,15 +246,15 @@
             // link_data_out  <= 128'b0;
             // snoop_hit      <= 0;
             // snoop_dirty    <= 0;
-            dcache_ctrl_we    <= 0;
-            dcache_ctrl_wdata <= 128'b0;
+            // dcache_ctrl_we    <= 0;
+            // dcache_ctrl_wdata <= 128'b0;
             evict_active   <= 0;
             saved_cpu_we   <= 0;
             saved_cpu_addr <= 0;
         end else begin
 
            
-            dcache_ctrl_we <= 0;
+            // dcache_ctrl_we <= 0;
             link_push_req  <= 0;
             // snoop_hit      <= 0;
             // snoop_dirty    <= 0;
@@ -321,6 +310,7 @@
 
             if (bus_grant) begin
                 bus_req <= 0;
+                bus_we  <= 0;
             end 
             if (bus_ready) begin
                 if (evict_active) begin
@@ -337,9 +327,9 @@
 
                 end else begin
                     
-                    dcache_ctrl_we    <= 1;
+                    // dcache_ctrl_we    <= 1;
 
-                    dcache_ctrl_wdata <= link_push_valid ? link_data_in : bus_rdata; // Get data from L2 or another core 
+                    // dcache_ctrl_wdata <= link_push_valid ? link_data_in : bus_rdata; // Get data from L2 or another core 
 
                     tags[saved_cpu_addr[11:4]] <= saved_cpu_addr[31:12];
                     // if (bus_ready && !evict_active) begin // DEBUG

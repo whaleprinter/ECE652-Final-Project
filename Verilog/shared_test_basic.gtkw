@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Thu Apr  9 12:16:11 2026
+[*] Thu Apr  9 12:21:07 2026
 [*]
 [dumpfile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/system_waves.vcd"
-[dumpfile_mtime] "Thu Apr  9 12:10:06 2026"
-[dumpfile_size] 492526
+[dumpfile_mtime] "Thu Apr  9 12:19:41 2026"
+[dumpfile_size] 493088
 [savefile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/shared_test_basic.gtkw"
-[timestart] 100900
+[timestart] 244800
 [size] 1754 980
 [pos] -1 -1
-*-16.000000 248600 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+*-16.000000 318200 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
 [markername] CC
@@ -41,12 +41,11 @@
 [sst_width] 255
 [signals_width] 671
 [sst_expanded] 1
-[sst_vpaned_height] 471
+[sst_vpaned_height] 727
 @28
 tb_system.uut.clk
 tb_system.uut.reset
 +{Arbiter State} tb_system.uut.arbiter.state[2:0]
-@29
 tb_system.uut.arbiter.core_priority
 @24
 [color] 5
@@ -95,7 +94,7 @@ tb_system.uut.core0_l1.snoop_addr[31:0]
 @22
 [color] 3
 tb_system.uut.core0_l1.link_data_in[127:0]
-@420
+@25
 [color] 3
 tb_system.uut.core0_l1.link_data_out[127:0]
 @24
