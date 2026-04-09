@@ -28,12 +28,13 @@ module L1D_cache(
         end
     end
 
-    // Combinatorial Reads (Independent Ports!)
+    // Reads
     always @(*) begin
-        // The Controller can read its block instantly
+
+        // Controller Read
         ctrl_read_data = cache[ctrl_index];
         
-        // The CPU can read its word instantly
+        // CPU Read
         case (offset)
             2'b00: word_read_data = cache[cpu_index][31:0];
             2'b01: word_read_data = cache[cpu_index][63:32];
@@ -42,7 +43,7 @@ module L1D_cache(
         endcase
     end
 
-    // Synchronous Writes (Independent Ports!)
+    // Writes
     always @(posedge clk) begin
         // Controller Write
         if (ctrl_write_enable) begin

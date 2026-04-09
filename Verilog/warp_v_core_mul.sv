@@ -4065,7 +4065,7 @@ endgenerate
                                           // Unfortunately formal verification tools can't handle multiple packed dimensions produced by the expression above, so we
                                           // build the concatination.
 
-                                          // UNCOMMENTED VERSION IS THE ORIGINAL
+                                          // COMMENTED VERSION BELOW IS THE ORIGINAL
                                           // assign FETCH_Instr_ld_data_a0[31:0] = {L1_FETCH_Instr_Bank[3].L1_ld_data_a0, L1_FETCH_Instr_Bank[2].L1_ld_data_a0, L1_FETCH_Instr_Bank[1].L1_ld_data_a0, L1_FETCH_Instr_Bank[0].L1_ld_data_a0};
                                              
                                           // =====

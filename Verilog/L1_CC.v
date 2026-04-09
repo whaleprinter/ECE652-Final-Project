@@ -52,16 +52,6 @@
             tags[j]   = 24'b0;
         end
     end
-
-    //   [31:12] tag 
-    //   [11:4]  index 
-    //   [3:2]   word offset
-    //   [1:0]   byte offset 
-
-    // wire [19:0] req_tag    = cpu_addr[31:12];
-    // wire  [7:0] req_index  = cpu_addr[11:4];
-    // wire  [1:0] req_offset = cpu_addr[3:2];
-
     wire [19:0] snp_tag   = snoop_addr[31:12];
     wire  [7:0] snp_index = snoop_addr[11:4];
 
@@ -84,11 +74,6 @@
     reg [31:0] hold_addr;
     reg        hold_we;
     reg [31:0] hold_wdata;
-
-    // Detect if the Arbiter is handing us data this exact cycle
-    // wire data_just_arrived = (bus_ready && !evict_active);
-    // // wire fill_match        = data_just_arrived && (hold_addr[31:4] == cpu_addr[31:4]); // OLD LINE
-    // wire fill_match = data_just_arrived;
 
     // The Arbiter finished our request (either a fill or an upgrade)
     wire stall_release = (bus_ready && !evict_active);
@@ -118,10 +103,6 @@
     wire        eff_cpu_we    = hold_req ? hold_we    : cpu_we;
     wire [31:0] eff_cpu_wdata = hold_req ? hold_wdata : cpu_wdata;
 
-    // ==========================================
-    // 2. MEALY BUS REQUEST (No 1-Cycle Delay)
-    // ==========================================
-    // assign bus_req = (eff_cpu_req && cache_needs_stall) || evict_active;
 
 
     // END NEW
@@ -232,18 +213,7 @@
         endcase
     end
 
-    // sram_word_read_data is the wire coming OUT of your L1D_cache module
-    // assign cpu_rdata = fill_match ? incoming_word : sram_word_read_data;
-
     // END NEW
-
-    // // Freeze CPU instantly if it makes a request and the cache is not ready
-    // assign cpu_stall = cpu_req && (
-    //     (states[req_index] == I) || 
-    //     (states[req_index] == S && cpu_we) || 
-    //     (!tag_match && states[req_index] != I) || 
-    //     (!is_stable)
-    // );
 
     
 
