@@ -9,8 +9,7 @@
     # the 42, and enter the 'M' state.
     sw x11, 0(x10)         
     
-    nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; 
-    nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; 
+    nop; nop; 
 
     # =================================================================
     # PHASE 2: The Dirty Intervention (M -> S)
@@ -18,8 +17,7 @@
     # Core 1 is currently reading 0x100. 
     # EXPECT IN WAVEFORM: Core 0 receives snoop_req, asserts snoop_dirty,
     # asserts link_push_req, pushes data, and downgrades to 'S'.
-    nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; 
-    nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; 
+    nop; nop; 
 
     # =================================================================
     # PHASE 3: Shared Read Hit (S -> S)
@@ -29,8 +27,7 @@
     # Register x12 should get 42.
     lw x12, 0(x10)         
 
-    nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; 
-    nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; 
+    nop; nop; 
 
     # =================================================================
     # PHASE 4: The Invalidation (S -> I)
@@ -38,9 +35,7 @@
     # Core 1 is currently writing to 0x100 to upgrade to 'M'.
     # EXPECT IN WAVEFORM: Core 0 receives snoop_type=1 (GetM).
     # Core 0 must transition its cache block from 'S' to 'I'.
-    nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; 
-    nop; nop; nop; nop; nop; nop; nop; nop; nop; nop; 
-
+    nop; nop; 
     # =================================================================
     # PHASE 5: Read Miss on Invalidated Line (I -> S)
     # =================================================================
@@ -51,3 +46,4 @@
     lw x13, 0(x10)
     
     nop; nop; nop; nop; nop;
+    

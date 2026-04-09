@@ -267,7 +267,7 @@ module system_top (
     );
 
     L1I_cache #(
-        .INIT_FILE("Hex_files/core_0_stress_test.hex") 
+        .INIT_FILE("Hex_files/test_sync_prodcons_c0.hex") 
     ) core0_l1i (
         .clk(clk),
         .reset(reset),
@@ -276,7 +276,7 @@ module system_top (
     );
 
     L1I_cache #(
-        .INIT_FILE("Hex_files/core_1_stress_test.hex") 
+        .INIT_FILE("Hex_files/test_sync_prodcons_c1.hex") 
     ) core1_l1i (
         .clk(clk),
         .reset(reset),

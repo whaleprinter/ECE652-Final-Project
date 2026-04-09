@@ -32,7 +32,7 @@ module tb_system();
         $display("System Booting... Cores are executing firmware.");
 
         // Let it run
-        #1500;
+        #3000;
 
         
         $display("Simulation Complete.");

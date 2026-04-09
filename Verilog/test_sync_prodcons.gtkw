@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Thu Apr  9 18:55:14 2026
+[*] Thu Apr  9 18:56:58 2026
 [*]
 [dumpfile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/system_waves.vcd"
-[dumpfile_mtime] "Thu Apr  9 18:52:16 2026"
+[dumpfile_mtime] "Thu Apr  9 18:56:05 2026"
 [dumpfile_size] 972329
-[savefile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/shared_test_basic.gtkw"
-[timestart] 147700
+[savefile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/test_sync_prodcons.gtkw"
+[timestart] 0
 [size] 1754 1102
 [pos] -1 -1
-*-16.000000 236200 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+*-16.000000 103500 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
 [markername] CC
@@ -39,9 +39,9 @@
 [treeopen] tb_system.
 [treeopen] tb_system.uut.
 [sst_width] 255
-[signals_width] 309
+[signals_width] 523
 [sst_expanded] 1
-[sst_vpaned_height] 685
+[sst_vpaned_height] 849
 @28
 tb_system.uut.clk
 tb_system.uut.reset
@@ -109,41 +109,6 @@ tb_system.uut.core0.x12_a2[31:0]
 tb_system.uut.core0.x13_a3[31:0]
 tb_system.uut.core0.x14_a4[31:0]
 tb_system.uut.core0.x15_a5[31:0]
-@28
-[color] 3
-tb_system.uut.arbiter.c0_bus_req
-[color] 3
-tb_system.uut.arbiter.c0_bus_grant
-[color] 3
-tb_system.uut.arbiter.c0_bus_we
-[color] 3
-tb_system.uut.arbiter.c0_snoop_req
-@24
-[color] 3
-tb_system.uut.arbiter.c0_bus_addr[31:0]
-@420
-tb_system.uut.core0_l1.cpu_wdata[31:0]
-@28
-[color] 3
-tb_system.uut.core0_l1.cpu_stall
-[color] 3
-tb_system.uut.arbiter.c0_bus_ready
-[color] 3
-tb_system.uut.c0_snoop_hit
-[color] 3
-tb_system.uut.c0_snoop_dirty
-@24
-tb_system.uut.core0_l1.snoop_addr[31:0]
-@22
-[color] 3
-tb_system.uut.core0_l1.link_data_in[127:0]
-@24
-[color] 3
-tb_system.uut.core0_l1.link_data_out[127:0]
-tb_system.uut.core0_l1.ctrl_index[7:0]
-tb_system.uut.core0_l1.snp_index[7:0]
-@22
-tb_system.uut.core0_l1.dcache_ctrl_rdata[127:0]
 @24
 [color] 5
 tb_system.uut.core1.FETCH_Instr_Pc_a0[31:0]
@@ -202,7 +167,7 @@ tb_system.uut.core1.x12_a2[31:0]
 (31)tb_system.uut.core1.x12_a2[31:0]
 @1401200
 -group_end
-@421
+@420
 tb_system.uut.core1.x13_a3[31:0]
 tb_system.uut.core1.x14_a4[31:0]
 tb_system.uut.core1.x15_a5[31:0]
