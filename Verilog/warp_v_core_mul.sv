@@ -2991,7 +2991,7 @@ endgenerate
                         assign FETCH_Instr_non_pipelined_a0 = FETCH_Instr_div_mul_a0  ;
                         assign FETCH_Instr_would_second_issue_a0 = (FETCH_Instr_ld_a0 && 1'b1) || FETCH_Instr_non_pipelined_a0;
                         // Pending value to write to dest reg, 1 for instructions that will second-issue.
-                        assign FETCH_Instr_reg_wr_pending_a0 = FETCH_Instr_would_second_issue_a0 && ! FETCH_Instr_second_issue_a0;
+                        assign FETCH_Instr_reg_wr_pending_a0 = 1'b0; // FETCH_Instr_would_second_issue_a0 && ! FETCH_Instr_second_issue_a0;
                         `BOGUS_USE(FETCH_Instr_reg_wr_pending_a0)  // Not used if no bypass and no pending.
             
                         // ======
@@ -4064,7 +4064,9 @@ endgenerate
                                           //$ld_data[31:0] = /bank[*]$ld_data;
                                           // Unfortunately formal verification tools can't handle multiple packed dimensions produced by the expression above, so we
                                           // build the concatination.
-                                          assign FETCH_Instr_ld_data_a0[31:0] = {L1_FETCH_Instr_Bank[3].L1_ld_data_a0, L1_FETCH_Instr_Bank[2].L1_ld_data_a0, L1_FETCH_Instr_Bank[1].L1_ld_data_a0, L1_FETCH_Instr_Bank[0].L1_ld_data_a0};
+
+                                          // UNCOMMENTED VERSION IS THE ORIGINAL
+                                          // assign FETCH_Instr_ld_data_a0[31:0] = {L1_FETCH_Instr_Bank[3].L1_ld_data_a0, L1_FETCH_Instr_Bank[2].L1_ld_data_a0, L1_FETCH_Instr_Bank[1].L1_ld_data_a0, L1_FETCH_Instr_Bank[0].L1_ld_data_a0};
                                              
                                           // =====
                                           // Store

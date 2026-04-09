@@ -87,7 +87,8 @@
 
     // Detect if the Arbiter is handing us data this exact cycle
     wire data_just_arrived = (bus_ready && !evict_active);
-    wire fill_match        = data_just_arrived && (hold_addr[31:4] == cpu_addr[31:4]);
+    // wire fill_match        = data_just_arrived && (hold_addr[31:4] == cpu_addr[31:4]); // OLD LINE
+    wire fill_match = data_just_arrived;
 
     always @(posedge clk) begin
         if (reset) begin
