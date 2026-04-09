@@ -15,7 +15,7 @@ module L2_cache(
     initial begin
         for (i = 0; i < 1024; i = i + 1) begin
             // $display("Initializing cache block %0d", i);
-            cache[i] = 128'd99999999999;
+            cache[i] = 128'd0;
         end
     end
 

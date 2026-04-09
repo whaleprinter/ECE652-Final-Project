@@ -124,15 +124,17 @@
     // Word write enable: only write CPU data when needed
     wire dcache_cpu_we = cpu_req & cpu_we & ~cpu_stall;
 
-    
+    wire [7:0] ctrl_index = (snoop_req || link_push_req) ? snp_index : saved_cpu_addr[11:4];
 
     L1D_cache dcache (
         .clk             (clk),
-        .index           (active_index),
+        .cpu_index       (active_index),
         .offset          (req_offset),
         .word_write_enable (dcache_cpu_we),
         .word_write_data   (eff_cpu_wdata),
         .word_read_data    (cpu_rdata),
+
+        .ctrl_index        (ctrl_index),
         .ctrl_write_enable (dcache_ctrl_we),
         .ctrl_write_data   (dcache_ctrl_wdata),
         .ctrl_read_data    (dcache_ctrl_rdata)

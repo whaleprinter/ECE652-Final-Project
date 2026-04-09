@@ -72,6 +72,8 @@ module bus_arbiter (
                     l2_req <= 0;
                     c0_snoop_req <= 0;
                     c1_snoop_req <= 0;
+                    c0_bus_we <= 0;
+                    c1_bus_we <= 0;
 
                     // Other core will be in transient state
                     if (c0_bus_req && c1_bus_req) begin
