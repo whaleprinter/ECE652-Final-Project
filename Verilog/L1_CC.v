@@ -86,10 +86,17 @@
     reg [31:0] hold_wdata;
 
     // Detect if the Arbiter is handing us data this exact cycle
-    wire data_just_arrived = (bus_ready && !evict_active);
-    // wire fill_match        = data_just_arrived && (hold_addr[31:4] == cpu_addr[31:4]); // OLD LINE
-    wire fill_match = data_just_arrived;
+    // wire data_just_arrived = (bus_ready && !evict_active);
+    // // wire fill_match        = data_just_arrived && (hold_addr[31:4] == cpu_addr[31:4]); // OLD LINE
+    // wire fill_match = data_just_arrived;
 
+    // The Arbiter finished our request (either a fill or an upgrade)
+    wire stall_release = (bus_ready && !evict_active);
+    
+    // We only need a 128-bit block from the bus if we were in Invalid (I)
+    wire is_fill = (states[saved_cpu_addr[11:4]] == IS_D) || (states[saved_cpu_addr[11:4]] == IM_D);
+
+    
     always @(posedge clk) begin
         if (reset) begin
             hold_req <= 0;
@@ -99,7 +106,7 @@
             hold_addr  <= cpu_addr;
             hold_we    <= cpu_we;
             hold_wdata <= cpu_wdata;
-        end else if (fill_match) begin // Revert to else if fill_match
+        end else if (stall_release) begin // Revert to else if fill_match
             // Unlock the vault when data arrives
             hold_req <= 0;
         end
@@ -126,8 +133,9 @@
     // Word write enable: only write CPU data when needed
     // wire dcache_cpu_we = cpu_req & cpu_we & ~cpu_stall;
     // Only let the CPU use Port A if the Controller isn't actively filling a miss on Port B!
-    wire dcache_cpu_we = eff_cpu_req & eff_cpu_we & ~cpu_stall & ~data_just_arrived;
-    
+    // wire dcache_cpu_we = eff_cpu_req & eff_cpu_we & ~cpu_stall & ~data_just_arrived;
+    // Silence Port A only if Port B is actively filling a 128-bit line!
+    wire dcache_cpu_we = eff_cpu_req & eff_cpu_we & ~cpu_stall & ~(stall_release && is_fill);
 
     wire [7:0] ctrl_index = (snoop_req || link_push_req) ? snp_index : req_index;
 
@@ -186,7 +194,9 @@
     // FREEZE OVERRIDE: 
     // Freeze instantly on a miss.
     // Drop the stall on the exact cycle the Arbiter returns the data (!fill_match).
-    assign cpu_stall = eff_cpu_req && cache_needs_stall && !fill_match;
+    // assign cpu_stall = eff_cpu_req && cache_needs_stall && !fill_match;
+    // Drop the stall on the exact cycle the Arbiter finishes
+    assign cpu_stall = eff_cpu_req && cache_needs_stall && !stall_release;
 
 
     // ==========================================
@@ -202,8 +212,14 @@
     assign merged_line[127:96] = (eff_cpu_we && req_offset == 2'b11) ? eff_cpu_wdata : incoming_line[127:96];
 
     // Drive Port B combinatorially the exact cycle the data arrives
-    assign dcache_ctrl_we    = data_just_arrived;
+    // assign dcache_ctrl_we    = data_just_arrived;
+    // assign dcache_ctrl_wdata = merged_line;
+    // Drive Port B ONLY if we actually need data from the bus/link
+    assign dcache_ctrl_we    = (stall_release && is_fill);
     assign dcache_ctrl_wdata = merged_line;
+
+    // Use the dedicated Port A output when reading normally!
+    assign cpu_rdata = (stall_release && is_fill) ? incoming_word : sram_word_read_data;
     // Route incoming Arbiter/Snoop data directly to the CPU if it's arriving right now
     // wire [127:0] incoming_line = link_push_valid ? link_data_in : bus_rdata;
     reg [31:0] incoming_word;
@@ -217,7 +233,7 @@
     end
 
     // sram_word_read_data is the wire coming OUT of your L1D_cache module
-    assign cpu_rdata = fill_match ? incoming_word : sram_word_read_data;
+    // assign cpu_rdata = fill_match ? incoming_word : sram_word_read_data;
 
     // END NEW
 
