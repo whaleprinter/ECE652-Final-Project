@@ -3383,11 +3383,34 @@ endgenerate
                               // Load instructions. If returning ld is enabled, load instructions write no meaningful result, so we use zeros.
                               //_\source /raw.githubusercontent.com/stevehoover/tlvlib/3543cfd9d7ef9ae3b1e5750614583959a672084d/fundamentalslib.tlv 88   // Instantiated from /raw.githubusercontent.com/stevehoover/warpv/71d9a9a9c02e692731b196dec4ca4811a41f0234/warpv.tlv, 2325 as: m5+ifelse(m5_get(INJECT_RETURNING_LD), 1,
                                  //_\source /raw.githubusercontent.com/stevehoover/warpv/71d9a9a9c02e692731b196dec4ca4811a41f0234/warpv.tlv 2326   // Instantiated from /raw.githubusercontent.com/stevehoover/tlvlib/3543cfd9d7ef9ae3b1e5750614583959a672084d/fundamentalslib.tlv, 89 as: m4+ANONYMOUS__23.
-                                    assign FETCH_Instr_lb_rslt_a0[31:0]    = 32'b0;
-                                    assign FETCH_Instr_lh_rslt_a0[31:0]    = 32'b0;
-                                    assign FETCH_Instr_lw_rslt_a0[31:0]    = 32'b0;
-                                    assign FETCH_Instr_lbu_rslt_a0[31:0]   = 32'b0;
-                                    assign FETCH_Instr_lhu_rslt_a0[31:0]   = 32'b0;
+                                 // Hook the execution stage directly to your cache data!
+                                    // ==========================================
+                                    // DIRECT CACHE TAP & FORMATTING
+                                    // ==========================================
+                                    // FETCH_Instr_ld_data_a0 is physically wired directly to dmem_rdata_in!
+
+                                    // 1. Extract the specific byte and halfword based on the address alignment
+                                    wire [7:0]  ld_byte = (FETCH_Instr_addr_a0[1:0] == 2'b00) ? FETCH_Instr_ld_data_a0[7:0] :
+                                                          (FETCH_Instr_addr_a0[1:0] == 2'b01) ? FETCH_Instr_ld_data_a0[15:8] :
+                                                          (FETCH_Instr_addr_a0[1:0] == 2'b10) ? FETCH_Instr_ld_data_a0[23:16] :
+                                                                                                FETCH_Instr_ld_data_a0[31:24];
+
+                                    wire [15:0] ld_half = (FETCH_Instr_addr_a0[1] == 1'b0)    ? FETCH_Instr_ld_data_a0[15:0] :
+                                                                                                FETCH_Instr_ld_data_a0[31:16];
+
+                                    // 2. Perform sign-extension and assign to the execution stage
+                                    assign FETCH_Instr_lb_rslt_a0[31:0]  = {{24{ld_byte[7]}}, ld_byte};
+                                    assign FETCH_Instr_lbu_rslt_a0[31:0] = {24'b0, ld_byte};
+                                    assign FETCH_Instr_lh_rslt_a0[31:0]  = {{16{ld_half[15]}}, ld_half};
+                                    assign FETCH_Instr_lhu_rslt_a0[31:0] = {16'b0, ld_half};
+                                    assign FETCH_Instr_lw_rslt_a0[31:0]  = FETCH_Instr_ld_data_a0; // Direct 32-bit passthrough!
+
+                                    // ORIGINAL FIVE LINES:
+                                    // assign FETCH_Instr_lb_rslt_a0[31:0]    = 32'b0;
+                                    // assign FETCH_Instr_lh_rslt_a0[31:0]    = 32'b0;
+                                    // assign FETCH_Instr_lw_rslt_a0[31:0]    = 32'b0;
+                                    // assign FETCH_Instr_lbu_rslt_a0[31:0]   = 32'b0;
+                                    // assign FETCH_Instr_lhu_rslt_a0[31:0]   = 32'b0;
                                     
                                     
                                     
@@ -4148,7 +4171,7 @@ endgenerate
                            // A returning load clobbers the instruction. Done here with fixed latency.
                            // (Could do this with lower latency. Right now it goes through memory pipeline $ANY, and
                            //  it is non-speculative. Both could easily be fixed.)
-                           assign FETCH_Instr_second_issue_ld_a0 = ! FETCH_Instr_reset_a0 && LD_BUFF_OUT_Instr_valid_ld_a1 && 1'b1;
+                           assign FETCH_Instr_second_issue_ld_a0 = 1'b0; // ! FETCH_Instr_reset_a0 && LD_BUFF_OUT_Instr_valid_ld_a1 && 1'b1; // CHANGE THIS LINE BACK TO ORIGINAL IF NEEDED
                         //_@0
                            // This reduces significantly once $ANY acts on subscope.
                            //_?$second_issue_ld
