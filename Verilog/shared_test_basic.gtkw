@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Thu Apr  9 12:51:58 2026
+[*] Thu Apr  9 14:12:26 2026
 [*]
 [dumpfile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/system_waves.vcd"
-[dumpfile_mtime] "Thu Apr  9 12:50:16 2026"
-[dumpfile_size] 512278
+[dumpfile_mtime] "Thu Apr  9 14:11:49 2026"
+[dumpfile_size] 579980
 [savefile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/shared_test_basic.gtkw"
-[timestart] 169500
+[timestart] 900200
 [size] 1754 980
 [pos] -1 -1
-*-16.000000 320500 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+*-16.000000 1036200 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
 [markername] CC
@@ -41,7 +41,7 @@
 [sst_width] 255
 [signals_width] 671
 [sst_expanded] 1
-[sst_vpaned_height] 727
+[sst_vpaned_height] 602
 @28
 tb_system.uut.clk
 tb_system.uut.reset
@@ -66,6 +66,10 @@ tb_system.uut.c0_r3[31:0]
 tb_system.uut.c0_r4[31:0]
 [color] 5
 tb_system.uut.c0_r5[31:0]
+tb_system.uut.core0.x10_a0[31:0]
+tb_system.uut.core0.x11_a1[31:0]
+tb_system.uut.core0.x12_a2[31:0]
+tb_system.uut.core0.x13_a3[31:0]
 @28
 [color] 3
 tb_system.uut.arbiter.c0_bus_req
@@ -94,10 +98,9 @@ tb_system.uut.core0_l1.snoop_addr[31:0]
 @22
 [color] 3
 tb_system.uut.core0_l1.link_data_in[127:0]
-@25
+@24
 [color] 3
 tb_system.uut.core0_l1.link_data_out[127:0]
-@24
 tb_system.uut.core0_l1.ctrl_index[7:0]
 tb_system.uut.core0_l1.snp_index[7:0]
 @22
@@ -107,7 +110,7 @@ tb_system.uut.core0_l1.dcache_ctrl_rdata[127:0]
 tb_system.uut.core1.FETCH_Instr_Pc_a0[31:0]
 [color] 5
 tb_system.uut.c1_imem_addr[31:0]
-@22
+@23
 [color] 5
 tb_system.uut.c1_imem_rdata[31:0]
 @420
@@ -121,6 +124,45 @@ tb_system.uut.c1_r3[31:0]
 tb_system.uut.c1_r4[31:0]
 [color] 5
 tb_system.uut.c1_r5[31:0]
+tb_system.uut.core1.x10_a0[31:0]
+tb_system.uut.core1.x11_a1[31:0]
+@c00420
+tb_system.uut.core1.x12_a2[31:0]
+@28
+(0)tb_system.uut.core1.x12_a2[31:0]
+(1)tb_system.uut.core1.x12_a2[31:0]
+(2)tb_system.uut.core1.x12_a2[31:0]
+(3)tb_system.uut.core1.x12_a2[31:0]
+(4)tb_system.uut.core1.x12_a2[31:0]
+(5)tb_system.uut.core1.x12_a2[31:0]
+(6)tb_system.uut.core1.x12_a2[31:0]
+(7)tb_system.uut.core1.x12_a2[31:0]
+(8)tb_system.uut.core1.x12_a2[31:0]
+(9)tb_system.uut.core1.x12_a2[31:0]
+(10)tb_system.uut.core1.x12_a2[31:0]
+(11)tb_system.uut.core1.x12_a2[31:0]
+(12)tb_system.uut.core1.x12_a2[31:0]
+(13)tb_system.uut.core1.x12_a2[31:0]
+(14)tb_system.uut.core1.x12_a2[31:0]
+(15)tb_system.uut.core1.x12_a2[31:0]
+(16)tb_system.uut.core1.x12_a2[31:0]
+(17)tb_system.uut.core1.x12_a2[31:0]
+(18)tb_system.uut.core1.x12_a2[31:0]
+(19)tb_system.uut.core1.x12_a2[31:0]
+(20)tb_system.uut.core1.x12_a2[31:0]
+(21)tb_system.uut.core1.x12_a2[31:0]
+(22)tb_system.uut.core1.x12_a2[31:0]
+(23)tb_system.uut.core1.x12_a2[31:0]
+(24)tb_system.uut.core1.x12_a2[31:0]
+(25)tb_system.uut.core1.x12_a2[31:0]
+(26)tb_system.uut.core1.x12_a2[31:0]
+(27)tb_system.uut.core1.x12_a2[31:0]
+(28)tb_system.uut.core1.x12_a2[31:0]
+(29)tb_system.uut.core1.x12_a2[31:0]
+(30)tb_system.uut.core1.x12_a2[31:0]
+(31)tb_system.uut.core1.x12_a2[31:0]
+@1401200
+-group_end
 @28
 [color] 3
 tb_system.uut.arbiter.c1_bus_req

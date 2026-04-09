@@ -377,7 +377,7 @@
                             // cpu_stall          <= 1;
                             saved_cpu_we       <= cpu_we;
                             saved_cpu_addr     <= cpu_addr;
-                            // bus_req            <= 1;
+                            bus_req            <= 1;
                             bus_addr           <= cpu_addr;
                             if (cpu_we) begin
                                 bus_we            <= 1;
@@ -393,7 +393,7 @@
                                 // cpu_stall          <= 1;
                                 saved_cpu_we       <= cpu_we;
                                 saved_cpu_addr     <= cpu_addr;
-                                // bus_req            <= 1;
+                                bus_req            <= 1;
                                 bus_we             <= 1;   // GetM 
                                 bus_addr           <= cpu_addr;
                                 states[req_index]  <= SM_D;
@@ -408,7 +408,7 @@
                             saved_cpu_we   <= cpu_we;
                             saved_cpu_addr <= cpu_addr;
                             evict_active   <= 1;
-                            // bus_req        <= 1;
+                            bus_req        <= 1;
                             bus_we         <= 1;   // PutM writeback
                             bus_addr       <= {tags[req_index], req_index, 4'b0};
                             bus_wdata      <= dcache_ctrl_rdata;
