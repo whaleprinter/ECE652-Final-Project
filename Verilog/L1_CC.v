@@ -14,22 +14,22 @@
     // Arbiter
     output reg          bus_req,        // C0_request
     output reg   [31:0] bus_addr,       // C0_address
-    output reg          bus_we,         // 0=GetS/GetM read, 1=PutM write/invalidate
-    input  wire         bus_grant,      // C0_ready (bus access granted)
+    output reg          bus_we,         // 0 = read, 1 = invalidate
+    input  wire         bus_grant,      // C0 ready
     input  wire [127:0] bus_rdata,      // Data returned from L2
-    output reg  [127:0] bus_wdata,      // Dirty data being written back
-    input  wire         bus_ready,      // Transaction complete (data valid / ack received)
+    output reg  [127:0] bus_wdata,      // Write dirty data back to L2
+    input  wire         bus_ready,      // Transaction complete
 
     // Core to core transfers
     output reg          link_push_req,  // Push dirty data to requesting core
-    output wire  [127:0] link_data_out,  // Data being forwarded
-    input  wire         link_push_valid,// Incoming C2C data is valid this cycle
-    input  wire [127:0] link_data_in,   // Incoming C2C forwarded data
+    output wire  [127:0] link_data_out,  // Data being sent to other core
+    input  wire         link_push_valid,// Incoming link data valid
+    input  wire [127:0] link_data_in,   // Incoming link data from other core
 
     // Snooping
     input  wire         snoop_req,      // C0_check_L1
     input  wire  [31:0] snoop_addr,     // C0_L1_address
-    input  wire         snoop_type,     // 0=GetS (read), 1=GetM (write/invalidate)
+    input  wire         snoop_type,     // 0 = read, 1 = write
     output wire          snoop_hit,      // C0_L1_hit
     output wire          snoop_dirty     // C0_L1_dirty
 );
@@ -62,60 +62,47 @@
     wire          dcache_ctrl_we; // change back to reg if needed
     wire [127:0] dcache_ctrl_wdata; // change back to reg if needed
     wire [127:0] dcache_ctrl_rdata;
-    wire   [31:0] sram_word_read_data; // ADD THIS WIRE
+    wire   [31:0] sram_word_read_data; 
 
-    // BEGIN NEW
-
-
-    // ==========================================
-    // 1. SNAPSHOT BUFFER (The Request Latch)
-    // ==========================================
+    // Holds the CPU's request steady while waiting for arbiter to return data or acknowledge a dirty eviction
     reg        hold_req;
     reg [31:0] hold_addr;
     reg        hold_we;
     reg [31:0] hold_wdata;
 
-    // The Arbiter finished our request (either a fill or an upgrade)
+    // Arbiter returned
     wire stall_release = (bus_ready && !evict_active);
     
-    // We only need a 128-bit block from the bus if we were in Invalid (I)
+    // We only need a 128-bit block from the bus if we were in I
     wire is_fill = (states[saved_cpu_addr[11:4]] == IS_D) || (states[saved_cpu_addr[11:4]] == IM_D);
 
-    
+    // Store the address and write enable of the CPU's original request so we can re-issue it after a dirty eviction if needed
     always @(posedge clk) begin
         if (reset) begin
             hold_req <= 0;
         end else if (cpu_req && cpu_stall && !hold_req) begin
-            // Lock the vault on a miss
             hold_req   <= 1;
             hold_addr  <= cpu_addr;
             hold_we    <= cpu_we;
             hold_wdata <= cpu_wdata;
         end else if (stall_release) begin // Revert to else if fill_match
-            // Unlock the vault when data arrives
             hold_req <= 0;
         end
     end
 
-    // Use these wires for ALL cache logic below this point!
+    // Effective request signals for logic stuff.....
     wire        eff_cpu_req   = hold_req ? 1'b1       : cpu_req;
     wire [31:0] eff_cpu_addr  = hold_req ? hold_addr  : cpu_addr;
     wire        eff_cpu_we    = hold_req ? hold_we    : cpu_we;
     wire [31:0] eff_cpu_wdata = hold_req ? hold_wdata : cpu_wdata;
 
 
-
-    // END NEW
-
+    // Request tag and index from CPU
     wire [19:0] req_tag    = eff_cpu_addr[31:12];
     wire  [7:0] req_index  = eff_cpu_addr[11:4];
     wire  [1:0] req_offset = eff_cpu_addr[3:2];
 
-    // Word write enable: only write CPU data when needed
-    // wire dcache_cpu_we = cpu_req & cpu_we & ~cpu_stall;
-    // Only let the CPU use Port A if the Controller isn't actively filling a miss on Port B!
-    // wire dcache_cpu_we = eff_cpu_req & eff_cpu_we & ~cpu_stall & ~data_just_arrived;
-    // Silence Port A only if Port B is actively filling a 128-bit line!
+    // Write enable from CPU is only valid if the CPU is actually making a request and we're not currently stalling for another request
     wire dcache_cpu_we = eff_cpu_req & eff_cpu_we & ~cpu_stall & ~(stall_release && is_fill);
 
     wire [7:0] ctrl_index = (snoop_req || link_push_req) ? snp_index : req_index;
@@ -127,7 +114,7 @@
         .word_write_enable (dcache_cpu_we),
         .word_write_data   (eff_cpu_wdata),
         // .word_read_data    (cpu_rdata),
-        .word_read_data      (sram_word_read_data), // USE THE NEW WIRE HERE!
+        .word_read_data      (sram_word_read_data), 
 
         .ctrl_index        (ctrl_index),
         .ctrl_write_enable (dcache_ctrl_we),
@@ -139,32 +126,27 @@
     wire tag_match = (tags[req_index] == req_tag);
     wire hit       = tag_match && (states[req_index] != I);
 
-    // ==========================================
-    // 4. COMBINATORIAL SNOOP RESPONSES
-    // ==========================================
+    // Detect snoop hit
     wire is_snoop_match = (tags[snp_index] == snp_tag) && (states[snp_index] != I);
     
-    // Instantly answer the Arbiter
+    // Send signals to arbiter
     assign snoop_hit   = snoop_req && is_snoop_match;
     assign snoop_dirty = snoop_req && is_snoop_match && (states[snp_index] == M);
-    // Instantly forward whatever the SRAM is currently reading
+    // Instantly forward data to requestor
     assign link_data_out = dcache_ctrl_rdata;
 
 
-    // Need to save the CPU's original request address and write enable so that we can re-issue the correct bus request after evicting a dirty block 
+    // Save CPU's original request info
     reg        saved_cpu_we;
     reg [31:0] saved_cpu_addr;
 
     // Tracks whether the outstanding bus request is a dirty eviction
     reg evict_active;
 
-
-    // wire is_stable = (states[req_index] == I || states[req_index] == S || states[req_index] == M);
-
-    // BEGIN NEW
-
+    // Is stable means the line is in a steady state (not transient) and can be accessed by the CPU without stalling
     wire is_stable = (states[req_index] == I || states[req_index] == S || states[req_index] == M);
 
+    // A cache line needs to be stalled if:
     wire cache_needs_stall = (
         (states[req_index] == I) || 
         (states[req_index] == S && eff_cpu_we) || 
@@ -172,37 +154,28 @@
         (!is_stable)
     );
 
-    // FREEZE OVERRIDE: 
-    // Freeze instantly on a miss.
-    // Drop the stall on the exact cycle the Arbiter returns the data (!fill_match).
-    // assign cpu_stall = eff_cpu_req && cache_needs_stall && !fill_match;
-    // Drop the stall on the exact cycle the Arbiter finishes
+    // Drop the stall on the exact cycle the arbiter finishes
     assign cpu_stall = eff_cpu_req && cache_needs_stall && !stall_release;
 
 
-    // ==========================================
-    // 5. THE WRITE MERGE MATRIX
-    // ==========================================
+   // Incoming data from data link overrides bus data 
     wire [127:0] incoming_line = link_push_valid ? link_data_in : bus_rdata;
     
-    // Splice the CPU's Store into the 128-bit block instantly
+    // CPU store on L1 miss + fetch from L2, so merge the two and give block to requestor
     wire [127:0] merged_line;
     assign merged_line[31:0]   = (eff_cpu_we && req_offset == 2'b00) ? eff_cpu_wdata : incoming_line[31:0];
     assign merged_line[63:32]  = (eff_cpu_we && req_offset == 2'b01) ? eff_cpu_wdata : incoming_line[63:32];
     assign merged_line[95:64]  = (eff_cpu_we && req_offset == 2'b10) ? eff_cpu_wdata : incoming_line[95:64];
     assign merged_line[127:96] = (eff_cpu_we && req_offset == 2'b11) ? eff_cpu_wdata : incoming_line[127:96];
 
-    // Drive Port B combinatorially the exact cycle the data arrives
-    // assign dcache_ctrl_we    = data_just_arrived;
-    // assign dcache_ctrl_wdata = merged_line;
-    // Drive Port B ONLY if we actually need data from the bus/link
+    // Dual ported cache control signals
     assign dcache_ctrl_we    = (stall_release && is_fill);
     assign dcache_ctrl_wdata = merged_line;
 
-    // Use the dedicated Port A output when reading normally!
+    // When CPU is reading normally 
     assign cpu_rdata = (stall_release && is_fill) ? incoming_word : sram_word_read_data;
-    // Route incoming Arbiter/Snoop data directly to the CPU if it's arriving right now
-    // wire [127:0] incoming_line = link_push_valid ? link_data_in : bus_rdata;
+
+    // Select the correct word from the incoming line based on the request offset
     reg [31:0] incoming_word;
     always @(*) begin
         case (req_offset)
@@ -213,10 +186,9 @@
         endcase
     end
 
-    // END NEW
 
     
-
+    // MAIN MSI FSM
     integer i;
     always @(posedge clk or posedge reset) begin
         if (reset) begin
@@ -246,6 +218,7 @@
             // snoop_hit      <= 0;
             // snoop_dirty    <= 0;
 
+            // Snooping stuff
             if (snoop_req) begin
                 if (tags[snp_index] == snp_tag && states[snp_index] != I) begin
                     // snoop_hit <= 1;
@@ -293,7 +266,7 @@
                 end
             end
 
-            // Response
+            // Response Stuff
 
             if (bus_grant) begin
                 bus_req <= 0;
@@ -333,7 +306,7 @@
                 end
             end
 
-            // CPU Request Handling
+            // CPU Request Handling Stuff
             else if (cpu_req && is_stable) begin // cpu_req && !cpu_stall is the old condition
 
                 case (states[req_index])

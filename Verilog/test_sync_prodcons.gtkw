@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Thu Apr  9 20:38:42 2026
+[*] Fri Apr 10 11:46:36 2026
 [*]
 [dumpfile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/system_waves.vcd"
-[dumpfile_mtime] "Thu Apr  9 20:30:47 2026"
-[dumpfile_size] 16205446
+[dumpfile_mtime] "Fri Apr 10 11:45:39 2026"
+[dumpfile_size] 1538061
 [savefile] "/Users/roshan/Documents/School/Duke Junior Year/Spring Semester/ECE652/Project/Verilog/test_sync_prodcons.gtkw"
-[timestart] 1107900
+[timestart] 228100
 [size] 1754 977
 [pos] -1 -1
-*-16.000000 165800 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+*-16.000000 486600 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
 [markername] CC
@@ -150,5 +150,6 @@ tb_system.uut.core1.x12_a2[31:0]
 tb_system.uut.core1.x13_a3[31:0]
 tb_system.uut.core1.x14_a4[31:0]
 tb_system.uut.core1.x15_a5[31:0]
+tb_system.uut.core1.x16_a6[31:0]
 [pattern_trace] 1
 [pattern_trace] 0
