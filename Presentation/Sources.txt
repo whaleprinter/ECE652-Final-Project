@@ -1,3 +1,0 @@
-Sources.txt
-https://www.tomshardware.com/reviews/Intel-i7-nehalem-cpu,2041-2.html
-https://www.cs.virginia.edu/~mccalpin/papers/bandwidth/bandwidth.html
