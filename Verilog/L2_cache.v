@@ -10,7 +10,7 @@ module L2_cache(
 );
 
     // TODO: Add an "owner or not owner" bit
-    reg [127:0] cache [0:1023]; // 16 byte cache blocks. 1023 blocks. 16 KB total cache size 
+    reg [127:0] cache [0:1023]; // 16 byte cache blocks. 1024 blocks. 16 KB total cache size 
     integer i;
     initial begin
         for (i = 0; i < 1024; i = i + 1) begin

@@ -1,12 +1,12 @@
 # Setup
     li x10, 4096      # x10 = 0x1000 (Start address)
     addi x11, x0, 257       # x11 = Write 257 blocks (overflows 256-block cache)
-    addi x12, x0, 1         # x12 = Counter / Payload
+    addi x12, x0, 1         # x12 = Counter 
 
 evict_loop:
     beq x11, x0, notify_c1
     
-    # Write payload to the first word of the block
+    # Write value to the first word of the block
     sw x12, 0(x10)
     
     addi x12, x12, 1

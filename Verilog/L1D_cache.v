@@ -1,18 +1,12 @@
 module L1D_cache(
     input wire clk,
 
-    // ==========================================
-    // PORT A: CPU Interface (Words Only)
-    // ==========================================
     input wire [7:0] cpu_index,
     input wire [1:0] offset,
     input wire [31:0] word_write_data,
     input wire word_write_enable,
     output reg [31:0] word_read_data,
 
-    // ==========================================
-    // PORT B: Controller / Core-to-Core Interface (128-bit)
-    // ==========================================
     input wire [7:0] ctrl_index,
     input wire ctrl_write_enable,
     input wire [127:0] ctrl_write_data,
@@ -64,5 +58,3 @@ module L1D_cache(
 endmodule
 
 
-
-// endmodule

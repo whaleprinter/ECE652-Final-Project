@@ -173,8 +173,8 @@ module system_top (
         // Link
         .link_push_req(c0_link_push_req),
         .link_data_out(c0_link_data_out),
-        .link_push_valid(c1_link_push_req),   // From Core 1
-        .link_data_in(c1_link_data_out),      // From Core 1
+        .link_push_valid(c1_link_push_req),   
+        .link_data_in(c1_link_data_out),      
         // Snoop Interface
         .snoop_req(c0_snoop_req),
         .snoop_addr(c0_snoop_addr),
@@ -205,8 +205,8 @@ module system_top (
         // Link
         .link_push_req(c1_link_push_req),
         .link_data_out(c1_link_data_out),
-        .link_push_valid(c0_link_push_req),   // From Core 0
-        .link_data_in(c0_link_data_out),      // From Core 0
+        .link_push_valid(c0_link_push_req),   
+        .link_data_in(c0_link_data_out),      
         // Snoop Interface
         .snoop_req(c1_snoop_req),
         .snoop_addr(c1_snoop_addr),
@@ -215,7 +215,7 @@ module system_top (
         .snoop_dirty(c1_snoop_dirty)
     );
 
-    // --- BUS ARBITER ---
+
     bus_arbiter arbiter (
         .clk(clk),
         .reset(reset),
@@ -254,7 +254,7 @@ module system_top (
         .l2_ready(l2_ready)
     );
 
-    // --- MAIN MEMORY (L2 CACHE) ---
+
     L2_cache main_memory (
         .clk(clk),
         .reset(reset),
@@ -267,7 +267,7 @@ module system_top (
     );
 
     L1I_cache #(
-        .INIT_FILE("Hex_files/test_sync_array_c0.hex") 
+        .INIT_FILE("Hex_files/matmul_c0.hex") // Update file for Core 0
     ) core0_l1i (
         .clk(clk),
         .reset(reset),
@@ -276,7 +276,7 @@ module system_top (
     );
 
     L1I_cache #(
-        .INIT_FILE("Hex_files/test_sync_array_c1.hex") 
+        .INIT_FILE("Hex_files/matmul_c1.hex") // Update file for Core 1
     ) core1_l1i (
         .clk(clk),
         .reset(reset),
@@ -284,14 +284,12 @@ module system_top (
         .data(c1_imem_rdata)
     );
 
-    wire [31:0] dmem_addr_out, dmem_wdata_out, imem_addr_out;
-
     warp_v_core core0 (
         .clk(clk),
         .reset(reset),
         
         .dmem_rdata_in(c0_rdata),
-        .dmem_stall_in(c0_stall), // SHOULD BE c0_stall, but the whole thing freezes when I do that. 
+        .dmem_stall_in(c0_stall), 
         
         .dmem_addr_out(c0_addr),
         .dmem_wdata_out(c0_wdata),
