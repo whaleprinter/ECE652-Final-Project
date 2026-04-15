@@ -2,7 +2,7 @@ module autotester_tb;
     reg clk;
     reg reset;
 
-    // Monitor registers for BOTH cores
+
     wire [31:0] c0_r30, c0_r31;
     wire [31:0] c1_r30, c1_r31;
 
@@ -28,24 +28,24 @@ module autotester_tb;
     reg c1_done = 0;
 
     always @(posedge clk) begin
-        // Check Core 0 (Sum)
+
         if (c0_r30 == 1 && !c0_done) begin
             $display("AUTOTEST_C0_RESULT: %0d", c0_r31);
             c0_done = 1;
         end
-        // Check Core 1 (Factorial)
+
         if (c1_r30 == 1 && !c1_done) begin
             $display("AUTOTEST_C1_RESULT: %0d", c1_r31);
             c1_done = 1;
         end
 
-        // End simulation only when BOTH are finished
+
         if (c0_done && c1_done) begin
             $finish;
         end
     end
 
-    // Timeout watchdog
+
     initial begin
         #100000; 
         $display("AUTOTEST_ERROR: TIMEOUT");

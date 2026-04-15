@@ -149,8 +149,12 @@ To solve this, we separated the bus ready signal into two distinct signals: a tr
 
 In general, these bugs were resolved by running many versions of a particular assembly test program to isolate the sequences of instructions or events that caused the issue. GTKWave proved to be an invaluable tool for tracing back the source of the issue, as it allowed us to inspect the values of signals at each cycle and understand how the system was behaving at any given time. The assembly programs themselves, in their original incarnations, were padded generously with \texttt{nop} instructions to allow for values to propagate through the system, and were gradually removed as our confidence in the system's stability increased.
 
-\section{Microbenchmarks and Evaluation}\label{sec:Microbenchmarks and Evaluation}
-Several microbenchmarks were written in RISC-V assembly to verify that the system behaved as expected under various sharing scenarios. The microbenchmarks were designed to test independent operation, simple sharing, false sharing, and capacity evictions. Each benchmark had to be written specifically for the core it was run on, as the cores do not share an instruction memory and thus cannot run the same program. Further, due to the absence of an operating system or autotester (like those seen in earlier ECE classes), programs had to be written from scratch and analyzed upon completion. Each program was written in RISC-V assembly and assembled using the GNU assembler. The resulting machine code was then converted to hexadecimal and preloaded into the instruction memories of the cores. The microbenchmarks are described below.
+\section{Evaluation}\label{sec:Microbenchmarks and Evaluation}
+Programming for this system was a unique challenge in and of itself. Each benchmark had to be written specifically for the core it was run on, as the cores do not share an instruction memory and thus cannot run the same program. Further, due to the absence of an operating system or autotester (like those seen in earlier ECE classes), programs had to be written from scratch and analyzed upon completion. Each program was written in RISC-V assembly or C and assembled using the GNU assembler. The resulting machine code was then converted to hexadecimal and preloaded into the instruction memories of the cores. The benchmarks are described below.
+
+\subsection{Microbenchmarks}
+Several microbenchmarks were written in RISC-V assembly to verify that the system behaved as expected under various sharing scenarios. The microbenchmarks were designed to test independent operation, simple sharing, false sharing, and capacity evictions.
+
 
 \subsubsection*{Independent Operation}
 This benchmark was designed to verify that the cores could operate independently without sharing any data, and was tested before studying the sharing behavior of the system. Each core simply performed a series of computations on local data and stored the results in its own register file. The benchmark was successful, as both cores were able to execute their instructions and produce the expected results without any interference from the other core. This fundamental test provided confidence that the cores and top level module were functioning as expected when no sharing occurred, and was a necessary first step before testing the more complex sharing scenarios.
@@ -163,6 +167,21 @@ This benchmark evaluated the cache controllers and bus arbiter under the extreme
 
 \subsubsection*{Capacity Evictions} 
 This benchmark evaluated the L1 cache controller's capacity miss detection and dirty writeback mechanisms. In this test, \textsc{Core 0} executed a loop writing data values to 257 sequentially mapped cache blocks. Because our L1 data cache has a maximum capacity of 256 blocks, the 257\textsuperscript{th} write forced a direct index conflict with the very first modified block. To prevent data loss, the L1 controller must stall the processor, assert its internal eviction flag, and flush the dirty 128-bit cache block to the L2 cache. Once the eviction completed and the 257\textsuperscript{th} write resolveed, \textsc{Core 0} wrote to a synchronization flag to unstall \textsc{Core 1}. \textsc{Core 1} then attempted a read to the originally evicted address. The successful retrieval of the original data by \textsc{Core 1} validates that the evicted block was safely stored in the L2 cache and correctly routed by the bus arbiter to the requestor, proving that the system can handle capacity misses without data loss or coherence violations.
+
+
+\subsection{Real-World Benchmarks}
+Several real-world benchmarks were also written in C and compiled to RISC-V assembly to further evaluate the system's behavior under more realistic workloads. These benchmarks included a single-threaded array sum program, single-threaded factorial program (to test the multiplier), and a multi-threaded matrix multiplication program. 
+
+\subsubsection*{Array Sum}
+
+
+
+
+
+\subsubsection*{Factorial}
+
+\subsubsection*{Matrix Multiplication}
+
 
 \section{Conclusion and Future Work}\label{sec:Conclusion}
 The design and implementation of a dual-core, cache-coherent multiprocessor in Verilog was presented in this paper. The system was designed to uphold the MSI coherence protocol and sequential consistency memory model, and was tested using a variety of microbenchmarks to verify its correctness under various sharing scenarios. As such, the project can run programs compiled to RISC-V assembly that share data between the cores without coherence violations. However, there are several areas for future work and optimization. 
