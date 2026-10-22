@@ -19,3 +19,12 @@ chmod +x compile_s.sh
 
 ./compile_c.sh my_program // (my_program.c)
 ./compile_s.sh my_program // (my_program.s)
+
+*To run the regression suite (needs iverilog, python3, and riscv64-unknown-elf-gcc):*
+./tests/run_all.sh                 // everything
+./tests/run_all.sh upgrade_race    // one test
+
+Each test runs on `tests/tb_coherence.v`, which checks the coherence invariants
+(single-writer/multiple-reader and S copies matching L2) on every idle bus cycle,
+plus each core's result in x31 once it writes 1 to x30. Directed tests live in
+`tests/asm/`; `tests/gen_random.py` generates the seeded random stress tests.

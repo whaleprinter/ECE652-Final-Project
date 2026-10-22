@@ -1,3 +1,12 @@
+// Instruction memory images can be overridden at compile time:
+//   iverilog -D C0_FILE=\"Hex_files/foo_c0.hex\" -D C1_FILE=\"Hex_files/foo_c1.hex\" ...
+`ifndef C0_FILE
+`define C0_FILE "Hex_files/matmul_c0.hex"
+`endif
+`ifndef C1_FILE
+`define C1_FILE "Hex_files/matmul_c1.hex"
+`endif
+
 module system_top (
     input wire clk,
     input wire reset,
@@ -267,7 +276,7 @@ module system_top (
     );
 
     L1I_cache #(
-        .INIT_FILE("Hex_files/matmul_c0.hex") // Update file for Core 0
+        .INIT_FILE(`C0_FILE)
     ) core0_l1i (
         .clk(clk),
         .reset(reset),
@@ -276,7 +285,7 @@ module system_top (
     );
 
     L1I_cache #(
-        .INIT_FILE("Hex_files/matmul_c1.hex") // Update file for Core 1
+        .INIT_FILE(`C1_FILE)
     ) core1_l1i (
         .clk(clk),
         .reset(reset),

@@ -11,3 +11,4 @@
 *.str
 *.pb
 .Xil/
+Verilog/tests/build/
