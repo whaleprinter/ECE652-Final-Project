@@ -38,11 +38,18 @@ speculative_mem_requests|warp_v_core_mul.sv|s.replace("assign dmem_req_out = FET
 EOF
 )
 
-killed=0; survived=0
+# Mutants that cannot change behaviour, so surviving is correct:
+#   drop_muldiv_on_stall  only committed loads request memory, so the core is never stalled
+#                         when a mul/div result is written back (the fix stays as a guard)
+#   no_putm_cancel        the cancelled PutM would only rewrite data that was already
+#                         forwarded or superseded; cancelling it saves a bus transaction
+EQUIVALENT=" drop_muldiv_on_stall no_putm_cancel "
+
+killed=0; survived=0; equivalent=0
 while IFS='|' read -r name file expr; do
     dir=$WORK/$name
     mkdir -p $dir/tests
-    cp *.v *.sv link.ld $dir/ && cp -r sv_url_inc Assembly_files C_programs $dir/ &&
+    cp *.v *.sv link.ld $dir/ && cp -r sv_url_inc Assembly_files C_programs sw $dir/ &&
     cp -r tests/asm tests/*.sh tests/*.py tests/*.v $dir/tests/
     python3 - "$dir/$file" "$expr" <<'PY'
 import sys
@@ -56,10 +63,15 @@ PY
     [ $? -eq 0 ] || { echo "ERROR  $name: mutation did not apply"; continue; }
     # Mutants often hang a test, so use a timeout just above the slowest passing test
     if VVP_ARGS=+TIMEOUT=50000 RAND_SEEDS="$(seq 1 16)" $dir/tests/run_all.sh > $dir/result.txt 2>&1; then
-        echo "SURVIVED  $name"; survived=$((survived+1))
+        if [[ $EQUIVALENT == *" $name "* ]]; then
+            echo "survived  $name  (equivalent mutant, expected)"; equivalent=$((equivalent+1))
+        else
+            echo "SURVIVED  $name"; survived=$((survived+1))
+        fi
     else
         echo "killed    $name  ($(tail -1 $dir/result.txt | awk '{print $3}') tests failed)"; killed=$((killed+1))
     fi
 done <<< "$MUTANTS"
 echo "----------------------------------------"
-echo "$killed killed, $survived survived"
+echo "$killed killed, $survived survived, $equivalent equivalent"
+[ $survived -eq 0 ]

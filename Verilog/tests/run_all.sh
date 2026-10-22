@@ -46,6 +46,12 @@ done
 LITMUS=$(python3 tests/gen_litmus.py $BUILD) || exit 1
 LITMUS+=" $(python3 tests/gen_races.py $BUILD)" || exit 1
 for t in $LITMUS; do build_asm ${t}_c0 $BUILD && build_asm ${t}_c1 $BUILD || exit 1; done
+# Parallel C programs on the sync-unit runtime (the fast ones; sw/run.sh runs them all)
+SW_PROGRAMS="hello lock_counter peterson queue array_sum"
+for p in $SW_PROGRAMS; do
+    $CC -Os -Isw -Wl,--no-warn-rwx-segments -T sw/link.ld sw/crt0.s sw/parallel.c sw/programs/$p.c -o $BUILD/sw_$p.elf &&
+    riscv64-unknown-elf-objcopy -O verilog $BUILD/sw_$p.elf $BUILD/sw_$p.hex || exit 1
+done
 build_c boot_c0 test_sum  test_sum  || exit 1
 build_c boot_c0 test_fac  test_fac  || exit 1
 build_c boot_c0 matmul_c0 matmul_c0 || exit 1
@@ -65,6 +71,7 @@ evict_then_snoop       evict_then_snoop_c0   evict_then_snoop_c1   77       0
 muldiv_miss            muldiv_miss_c0        idle                  333      0
 mul_dep                mul_dep_c0            idle                  141      0
 subword                subword_c0            idle                  0        0
+io_after_mul           io_after_mul_c0       idle                  0        0
 c_sum                  test_sum              idle                  150      0
 c_factorial            test_fac              idle                  3628800  0
 c_matmul               matmul_c0             matmul_c1             72       200
@@ -72,6 +79,9 @@ c_matmul               matmul_c0             matmul_c1             72       200
 for t in tests/asm/*_c0.s; do      # tests that declare "# EXPECT: <c0> <c1>" themselves
     exp=$(grep -o '^# EXPECT: .*' $t | cut -d' ' -f3-)
     [ -n "$exp" ] && TESTS+="$(basename $t _c0.s) $(basename $t .s) $(basename $t _c0.s)_c1 $exp"$'\n'
+done
+for p in $SW_PROGRAMS; do       # same image on both cores and in data memory
+    TESTS+="sw_$p sw_$p sw_$p 0 0 spmd"$'\n'
 done
 for t in $LITMUS; do
     TESTS+="$t ${t}_c0 ${t}_c1 0 0"$'\n'
@@ -85,13 +95,16 @@ if [ $# -gt 0 ]; then
 fi
 
 # ---------------------------------------------------------------- run
-run_one() {    # <name> <c0 hex> <c1 hex> <c0 expect> <c1 expect>
-    local name=$1 out
-    if ! iverilog -g2012 -o $BUILD/$name.vvp -D C0_FILE=\"$BUILD/$2.hex\" -D C1_FILE=\"$BUILD/$3.hex\" \
+run_one() {    # <name> <c0 hex> <c1 hex> <c0 expect> <c1 expect> [spmd]
+    local name=$1 out defs="" args=""
+    if [ "$6" == "spmd" ]; then
+        defs="-D MEM_FILE=\"$BUILD/$2.hex\""; args="+EXIT_ONLY"
+    fi
+    if ! iverilog -g2012 -o $BUILD/$name.vvp -D C0_FILE=\"$BUILD/$2.hex\" -D C1_FILE=\"$BUILD/$3.hex\" $defs \
             tests/tb_coherence.v $RTL > $BUILD/$name.log 2>&1; then
         echo "FAIL  $name (compile)"; return
     fi
-    out=$(vvp -n $BUILD/$name.vvp +C0_EXPECT=$4 +C1_EXPECT=$5 $VVP_ARGS)
+    out=$(vvp -n $BUILD/$name.vvp +C0_EXPECT=$4 +C1_EXPECT=$5 $args $VVP_ARGS)
     echo "$out" > $BUILD/$name.log
     if grep -q "TEST_PASS" <<< "$out" && ! grep -q "L2_ERROR" <<< "$out"; then
         echo "PASS  $name  ($(grep -o 'done at cycle [0-9]*' <<< "$out" | grep -o '[0-9]*$' | sort -n | tail -1) cycles)"

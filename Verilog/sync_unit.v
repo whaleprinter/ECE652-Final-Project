@@ -43,11 +43,9 @@ module sync_unit #(
     localparam CORE_ID   = 8'h00;
     localparam NCORES    = 8'h04;
     localparam CYCLES    = 8'h08;
-    localparam PUTCHAR   = 8'h10;
+    localparam PUTCHAR   = 8'h10;     // LOCK[i] = 0x40 + 4i, COUNTER[i] = 0x60 + 4i (decoded below)
     localparam EXIT      = 8'h14;
     localparam BARRIER   = 8'h20;
-    localparam LOCK0     = 8'h40;
-    localparam COUNTER0  = 8'h60;
 
     reg  [31:0] cycles;
     reg   [7:0] locks;
@@ -97,8 +95,9 @@ module sync_unit #(
         endcase
     end
 
+    wire [1:0] arrive_now = {c1_wr && c1_addr == BARRIER, c0_wr && c0_addr == BARRIER};
+
     // Side effects
-    reg [1:0] arrive_now;
     integer n;
     always @(posedge clk) begin
         if (reset) begin
@@ -121,18 +120,17 @@ module sync_unit #(
 
             // Counters: core 1's access is applied on top of core 0's
             for (n = 0; n < 4; n = n + 1) begin
-                if (c1_wr && c1_ctr && c1_ctr_id == n)
+                if (c1_wr && c1_ctr && c1_ctr_id == n[1:0])
                     counters[n] <= c1_wdata;
-                else if (c1_rd && c1_ctr && c1_ctr_id == n)
+                else if (c1_rd && c1_ctr && c1_ctr_id == n[1:0])
                     counters[n] <= c1_rdata + 1;
-                else if (c0_sets && c0_ctr_id == n)
+                else if (c0_sets && c0_ctr_id == n[1:0])
                     counters[n] <= c0_wdata;
-                else if (c0_bumps && c0_ctr_id == n)
+                else if (c0_bumps && c0_ctr_id == n[1:0])
                     counters[n] <= counters[n] + 1;
             end
 
             // Barrier: the last core to arrive opens the next generation
-            arrive_now = {c1_wr && c1_addr == BARRIER, c0_wr && c0_addr == BARRIER};
             if ((arrived | arrive_now) == 2'b11) begin
                 arrived <= 2'b00;
                 barrier_gen <= barrier_gen + 1;
