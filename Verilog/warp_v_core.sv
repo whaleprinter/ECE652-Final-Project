@@ -8,6 +8,7 @@
        // Data Memory Ports (For your MSI Cache)
        output wire [31:0] dmem_addr_out,
        output wire [31:0] dmem_wdata_out,
+      output wire  [3:0] dmem_wmask_out,   // Byte enables for sb/sh/sw
        output wire dmem_we_out,
        output wire dmem_req_out,
        input  wire [31:0] dmem_rdata_in,
@@ -3605,6 +3606,7 @@ endgenerate
                assign dmem_addr_out = FETCH_Instr_addr_a0;
             //_?$st_cond
                assign dmem_wdata_out = FETCH_Instr_st_value_a0;
+               assign dmem_wmask_out = FETCH_Instr_st_mask_a0;
             //_?$spec_ld
                assign FETCH_Instr_ld_data_a0[31:0] = dmem_rdata_in;
 //_\SV

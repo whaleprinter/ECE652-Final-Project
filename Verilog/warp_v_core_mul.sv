@@ -12,6 +12,7 @@
       // Data Memory Ports (For your MSI Cache)
       output wire [31:0] dmem_addr_out,
       output wire [31:0] dmem_wdata_out,
+      output wire  [3:0] dmem_wmask_out,   // Byte enables for sb/sh/sw
       output wire dmem_we_out,
       output wire dmem_req_out,
       input  wire [31:0] dmem_rdata_in,
@@ -4211,7 +4212,9 @@ endgenerate
                                  // Reg Write (Floating Point Register)
                                  /*SV_plus*/
                                     always @ (posedge clk) begin
-                                       if (FETCH_Instr_commit_dest_reg_a0 && !dmem_stall_in) // ONLY COMMIT IF NOT STALLED
+                                       // Only commit if not stalled, except for a mul/div second issue: it owns this
+                                       // slot (the stalled instruction is aborted and replays), so dropping it loses the result
+                                       if (FETCH_Instr_commit_dest_reg_a0 && (!dmem_stall_in || FETCH_Instr_commit_second_issue_a0))
                                           FETCH_Instr_Regs_value_a0[FETCH_Instr_wr_reg_a0][31:0] <= FETCH_Instr_rslt_a0;
                                     end
                               //_\end_source
@@ -4388,6 +4391,7 @@ endgenerate
                assign dmem_addr_out = FETCH_Instr_addr_a0;
             //_?$st_cond
                assign dmem_wdata_out = FETCH_Instr_st_value_a0;
+               assign dmem_wmask_out = FETCH_Instr_st_mask_a0;
             //_?$spec_ld
                assign FETCH_Instr_ld_data_a0[31:0] = dmem_rdata_in;
 //_\SV

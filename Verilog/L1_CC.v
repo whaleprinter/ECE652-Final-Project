@@ -8,6 +8,7 @@
     input  wire  [31:0] cpu_addr,       // dmem_addr_out
     input  wire         cpu_we,         // dmem_we_out
     input  wire  [31:0] cpu_wdata,      // dmem_wdata_out
+    input  wire   [3:0] cpu_wmask,      // dmem_wmask_out (byte enables)
     output wire  [31:0] cpu_rdata,      // dmem_rdata_in
     output wire          cpu_stall,      // dmem_stall_in
 
@@ -70,6 +71,7 @@
     reg [31:0] hold_addr;
     reg        hold_we;
     reg [31:0] hold_wdata;
+    reg  [3:0] hold_wmask;
 
     // Arbiter returned
     wire stall_release = (bus_ready && !evict_active);
@@ -86,6 +88,7 @@
             hold_addr  <= cpu_addr;
             hold_we    <= cpu_we;
             hold_wdata <= cpu_wdata;
+            hold_wmask <= cpu_wmask;
         end else if (stall_release) begin // Revert to else if fill_match
             hold_req <= 0;
         end
@@ -96,6 +99,7 @@
     wire [31:0] eff_cpu_addr  = hold_req ? hold_addr  : cpu_addr;
     wire        eff_cpu_we    = hold_req ? hold_we    : cpu_we;
     wire [31:0] eff_cpu_wdata = hold_req ? hold_wdata : cpu_wdata;
+    wire  [3:0] eff_cpu_wmask = hold_req ? hold_wmask : cpu_wmask;
 
 
     // Request tag and index from CPU
@@ -114,6 +118,7 @@
         .offset          (req_offset),
         .word_write_enable (dcache_cpu_we),
         .word_write_data   (eff_cpu_wdata),
+        .word_write_mask   (eff_cpu_wmask),
         // .word_read_data    (cpu_rdata),
         .word_read_data      (sram_word_read_data), 
 
@@ -164,10 +169,15 @@
     
     // CPU store on L1 miss + fetch from L2, so merge the two and give block to requestor
     wire [127:0] merged_line;
-    assign merged_line[31:0]   = (eff_cpu_we && req_offset == 2'b00) ? eff_cpu_wdata : incoming_line[31:0];
-    assign merged_line[63:32]  = (eff_cpu_we && req_offset == 2'b01) ? eff_cpu_wdata : incoming_line[63:32];
-    assign merged_line[95:64]  = (eff_cpu_we && req_offset == 2'b10) ? eff_cpu_wdata : incoming_line[95:64];
-    assign merged_line[127:96] = (eff_cpu_we && req_offset == 2'b11) ? eff_cpu_wdata : incoming_line[127:96];
+    genvar w, b;
+    generate
+        for (w = 0; w < 4; w = w + 1) begin : merge_word
+            for (b = 0; b < 4; b = b + 1) begin : merge_byte
+                assign merged_line[w*32 + b*8 +: 8] = (eff_cpu_we && req_offset == w && eff_cpu_wmask[b])
+                                                      ? eff_cpu_wdata[b*8 +: 8] : incoming_line[w*32 + b*8 +: 8];
+            end
+        end
+    endgenerate
 
     // Dual ported cache control signals
     assign dcache_ctrl_we    = (stall_release && is_fill);

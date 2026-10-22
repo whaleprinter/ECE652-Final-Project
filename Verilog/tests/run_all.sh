@@ -82,6 +82,9 @@ run store_miss_fill    store_miss_fill_c0    idle                  2849     0
 run dirty_share_wb     dirty_share_wb_c0     dirty_share_wb_c1     85       85
 run upgrade_race       upgrade_race_c0       upgrade_race_c1       3276850  0
 run evict_then_snoop   evict_then_snoop_c0   evict_then_snoop_c1   77       0
+run muldiv_miss        muldiv_miss_c0        idle                  333      0
+run mul_dep            mul_dep_c0            idle                  141      0
+run subword            subword_c0            idle                  0        0
 run c_sum              test_sum              idle                  150      0
 run c_factorial        test_fac              idle                  3628800  0
 run c_matmul           matmul_c0             matmul_c1             72       200

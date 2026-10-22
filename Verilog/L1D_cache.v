@@ -4,6 +4,7 @@ module L1D_cache(
     input wire [7:0] cpu_index,
     input wire [1:0] offset,
     input wire [31:0] word_write_data,
+    input wire  [3:0] word_write_mask,     // Byte enables
     input wire word_write_enable,
     output reg [31:0] word_read_data,
 
@@ -16,6 +17,7 @@ module L1D_cache(
     reg [127:0] cache [0:255]; // 16 byte cache blocks. 256 blocks. 4 KB total cache size 
 
     integer i;
+    integer b;
     initial begin
         for (i = 0; i < 256; i = i + 1) begin
             cache[i] = 128'b0;
@@ -44,14 +46,11 @@ module L1D_cache(
             cache[ctrl_index] <= ctrl_write_data;
         end
         
-        // CPU Write
+        // CPU Write (byte-masked)
         if (word_write_enable) begin
-            case (offset)
-                2'b00: cache[cpu_index][31:0]   <= word_write_data;
-                2'b01: cache[cpu_index][63:32]  <= word_write_data;
-                2'b10: cache[cpu_index][95:64]  <= word_write_data;
-                2'b11: cache[cpu_index][127:96] <= word_write_data;
-            endcase
+            for (b = 0; b < 4; b = b + 1)
+                if (word_write_mask[b])
+                    cache[cpu_index][offset*32 + b*8 +: 8] <= word_write_data[b*8 +: 8];
         end
     end
 

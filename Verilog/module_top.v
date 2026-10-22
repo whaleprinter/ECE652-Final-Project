@@ -82,6 +82,7 @@ module system_top (
     wire [31:0] c0_addr;
     wire        c0_we;
     wire [31:0] c0_wdata;
+    wire  [3:0] c0_wmask;
     wire [31:0] c0_rdata;
     wire        c0_stall;
 
@@ -123,6 +124,7 @@ module system_top (
     wire [31:0] c1_addr;
     wire        c1_we;
     wire [31:0] c1_wdata;
+    wire  [3:0] c1_wmask;
     wire [31:0] c1_rdata;
     wire        c1_stall;
 
@@ -171,6 +173,7 @@ module system_top (
         .cpu_addr(c0_addr),
         .cpu_we(c0_we),
         .cpu_wdata(c0_wdata),
+        .cpu_wmask(c0_wmask),
         .cpu_rdata(c0_rdata),
         .cpu_stall(c0_stall),
         // Bus Interface
@@ -204,6 +207,7 @@ module system_top (
         .cpu_addr(c1_addr),
         .cpu_we(c1_we),
         .cpu_wdata(c1_wdata),
+        .cpu_wmask(c1_wmask),
         .cpu_rdata(c1_rdata),
         .cpu_stall(c1_stall),
         // Bus Interface
@@ -310,6 +314,7 @@ module system_top (
         
         .dmem_addr_out(c0_addr),
         .dmem_wdata_out(c0_wdata),
+        .dmem_wmask_out(c0_wmask),
         .dmem_we_out(c0_we),
         .dmem_req_out(c0_req),
 
@@ -366,6 +371,7 @@ module system_top (
         
         .dmem_addr_out(c1_addr),
         .dmem_wdata_out(c1_wdata),
+        .dmem_wmask_out(c1_wmask),
         .dmem_we_out(c1_we),
         .dmem_req_out(c1_req),
 
