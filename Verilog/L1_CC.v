@@ -14,7 +14,8 @@
     // Arbiter
     output reg          bus_req,        // C0_request
     output reg   [31:0] bus_addr,       // C0_address
-    output reg          bus_we,         // 0 = read, 1 = invalidate
+    output reg          bus_we,         // 0 = GetS, 1 = GetM
+    output reg          bus_put,        // 1 = PutM (dirty writeback of bus_wdata)
     input  wire         bus_grant,      // C0 ready
     input  wire [127:0] bus_rdata,      // Data returned from L2
     output reg  [127:0] bus_wdata,      // Write dirty data back to L2
@@ -48,8 +49,8 @@
     integer j;
     initial begin
         for (j = 0; j < 256; j = j + 1) begin
-            states[j] = 2'b00; 
-            tags[j]   = 24'b0;
+            states[j] = I;
+            tags[j]   = 20'b0;
         end
     end
     wire [19:0] snp_tag   = snoop_addr[31:12];
@@ -200,6 +201,7 @@
             bus_req        <= 0;
             bus_addr       <= 0;
             bus_we         <= 0;
+            bus_put        <= 0;
             bus_wdata      <= 128'b0;
             link_push_req  <= 0;
             // link_data_out  <= 128'b0;
@@ -252,10 +254,15 @@
                             // GetS on S: no state change needed
                         end
 
-                        // TODO: IMPLEMENT NACKS
-                        IS_D, IM_D, SM_D: begin
-                            // snoop_hit   <= 0;
-                            // snoop_dirty <= 0;
+                        SM_D: begin
+                            // Another core's GetM was ordered before our upgrade, so our
+                            // S copy is stale: SM_D -> IM_D and take the full block on fill
+                            if (snoop_type == 1)
+                                states[snp_index] <= IM_D;
+                        end
+
+                        // IS_D, IM_D: our request is not on the bus yet and we hold no data
+                        IS_D, IM_D: begin
                         end
 
                         default: begin
@@ -271,6 +278,7 @@
             if (bus_grant) begin
                 bus_req <= 0;
                 bus_we  <= 0;
+                bus_put <= 0;
             end 
             if (bus_ready) begin
                 if (evict_active) begin
@@ -307,18 +315,20 @@
             end
 
             // CPU Request Handling Stuff
-            else if (cpu_req && is_stable) begin // cpu_req && !cpu_stall is the old condition
+            // Never while a PutM is outstanding (the line is still M and would re-issue the eviction),
+            // or while a snoop owns the controller port (bus_wdata would latch the snooped block)
+            else if (eff_cpu_req && is_stable && !evict_active && !snoop_req && !link_push_req) begin
 
                 case (states[req_index])
 
                     
                     I: begin
                         // cpu_stall      <= 1;
-                        saved_cpu_we   <= cpu_we;
-                        saved_cpu_addr <= cpu_addr;
+                        saved_cpu_we   <= eff_cpu_we;
+                        saved_cpu_addr <= eff_cpu_addr;
                         bus_req        <= 1;
-                        bus_addr       <= cpu_addr;
-                        if (cpu_we) begin
+                        bus_addr       <= eff_cpu_addr;
+                        if (eff_cpu_we) begin
                             bus_we             <= 1;     // GetM
                             states[req_index]  <= IM_D;
                         end else begin
@@ -334,11 +344,11 @@
                             // No write back
                             states[req_index]  <= I;
                             // cpu_stall          <= 1;
-                            saved_cpu_we       <= cpu_we;
-                            saved_cpu_addr     <= cpu_addr;
+                            saved_cpu_we       <= eff_cpu_we;
+                            saved_cpu_addr     <= eff_cpu_addr;
                             bus_req            <= 1;
-                            bus_addr           <= cpu_addr;
-                            if (cpu_we) begin
+                            bus_addr           <= eff_cpu_addr;
+                            if (eff_cpu_we) begin
                                 bus_we            <= 1;
                                 states[req_index] <= IM_D;
                             end else begin
@@ -347,14 +357,14 @@
                             end
                         end else begin
                             // Tag match in S
-                            if (cpu_we) begin
+                            if (eff_cpu_we) begin
                                 // Write hit in S so upgrade to M
                                 // cpu_stall          <= 1;
-                                saved_cpu_we       <= cpu_we;
-                                saved_cpu_addr     <= cpu_addr;
+                                saved_cpu_we       <= eff_cpu_we;
+                                saved_cpu_addr     <= eff_cpu_addr;
                                 bus_req            <= 1;
                                 bus_we             <= 1;   // GetM 
-                                bus_addr           <= cpu_addr;
+                                bus_addr           <= eff_cpu_addr;
                                 states[req_index]  <= SM_D;
                             end
                         end
@@ -364,11 +374,11 @@
                         if (!tag_match) begin
                             // Dirty eviction required before fetching new line
                             // cpu_stall      <= 1;
-                            saved_cpu_we   <= cpu_we;
-                            saved_cpu_addr <= cpu_addr;
+                            saved_cpu_we   <= eff_cpu_we;
+                            saved_cpu_addr <= eff_cpu_addr;
                             evict_active   <= 1;
                             bus_req        <= 1;
-                            bus_we         <= 1;   // PutM writeback
+                            bus_put        <= 1;   // PutM writeback
                             bus_addr       <= {tags[req_index], req_index, 4'b0};
                             bus_wdata      <= dcache_ctrl_rdata;
                         end

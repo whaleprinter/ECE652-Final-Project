@@ -95,6 +95,7 @@ module system_top (
     wire        c0_bus_req;
     wire [31:0] c0_bus_addr;
     wire        c0_bus_we;
+    wire        c0_bus_put;
     wire        c0_bus_grant;
     wire [127:0] c0_bus_rdata;
     wire [127:0] c0_bus_wdata;
@@ -135,6 +136,7 @@ module system_top (
     wire        c1_bus_req;
     wire [31:0] c1_bus_addr;
     wire        c1_bus_we;
+    wire        c1_bus_put;
     wire        c1_bus_grant;
     wire [127:0] c1_bus_rdata;
     wire [127:0] c1_bus_wdata;
@@ -175,6 +177,7 @@ module system_top (
         .bus_req(c0_bus_req),
         .bus_addr(c0_bus_addr),
         .bus_we(c0_bus_we),
+        .bus_put(c0_bus_put),
         .bus_grant(c0_bus_grant),
         .bus_rdata(c0_bus_rdata),
         .bus_wdata(c0_bus_wdata),
@@ -207,6 +210,7 @@ module system_top (
         .bus_req(c1_bus_req),
         .bus_addr(c1_bus_addr),
         .bus_we(c1_bus_we),
+        .bus_put(c1_bus_put),
         .bus_grant(c1_bus_grant),
         .bus_rdata(c1_bus_rdata),
         .bus_wdata(c1_bus_wdata),
@@ -232,6 +236,7 @@ module system_top (
         .c0_bus_req(c0_bus_req),
         .c0_bus_addr(c0_bus_addr),
         .c0_bus_we(c0_bus_we),
+        .c0_bus_put(c0_bus_put),
         .c0_bus_grant(c0_bus_grant),
         .c0_bus_rdata(c0_bus_rdata),
         .c0_bus_wdata(c0_bus_wdata),
@@ -241,10 +246,12 @@ module system_top (
         .c0_snoop_type(c0_snoop_type),
         .c0_snoop_hit(c0_snoop_hit),
         .c0_snoop_dirty(c0_snoop_dirty),
+        .c0_link_data(c0_link_data_out),
         // Core 1 Interconnect
         .c1_bus_req(c1_bus_req),
         .c1_bus_addr(c1_bus_addr),
         .c1_bus_we(c1_bus_we),
+        .c1_bus_put(c1_bus_put),
         .c1_bus_grant(c1_bus_grant),
         .c1_bus_rdata(c1_bus_rdata),
         .c1_bus_wdata(c1_bus_wdata),
@@ -254,6 +261,7 @@ module system_top (
         .c1_snoop_type(c1_snoop_type),
         .c1_snoop_hit(c1_snoop_hit),
         .c1_snoop_dirty(c1_snoop_dirty),
+        .c1_link_data(c1_link_data_out),
         // L2 Interconnect
         .l2_req(l2_req),
         .l2_addr(l2_addr),
