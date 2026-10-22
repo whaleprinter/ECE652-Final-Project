@@ -4386,7 +4386,9 @@ endgenerate
 
             // --- DATA MEMORY BYPASS ---
             assign dmem_we_out = FETCH_Instr_valid_st_a0;
-            assign dmem_req_out = FETCH_Instr_valid_st_a0 || FETCH_Instr_spec_ld_a0;
+            // Only committing loads go to memory: an aborted slot (e.g. a mul/div second issue) replays the load,
+            // and a request from the aborted copy would start a needless miss or fire an I/O side effect twice
+            assign dmem_req_out = FETCH_Instr_valid_st_a0 || FETCH_Instr_valid_ld_a0;
             //_?$ld_st_cond
                assign dmem_addr_out = FETCH_Instr_addr_a0;
             //_?$st_cond

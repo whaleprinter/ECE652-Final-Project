@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
-"""Generates a random two-core coherence stress test.
+"""Generates a random two-core coherence stress test that checks every load.
 
-Both cores hammer the same few blocks: three blocks that collide on one L1
-index (forcing dirty evictions) plus a neighbouring block. Core 0 owns the
-even words and core 1 the odd words of every block, so every store is false
-sharing. Each core randomly stores to its own words or loads any word.
+Shared words are split between the cores: core c owns the words whose index
+is congruent to c mod 2, and each core writes strictly increasing values to
+the words it owns. That makes every load checkable:
 
-At the end core 1 raises a flag, and core 0 reads every word and compares it
-with the last value written. x31 on core 0 holds the number of mismatches.
+  * a load of one of my own words must return exactly the last value I wrote
+    (or 0 before my first write);
+  * a load of the other core's word must never return a value older than the
+    one I saw last time (coherence: per-location sequential consistency).
+
+Private blocks that share cache indices with the shared ones force dirty
+evictions. Each seed picks a different configuration (block set, op mix,
+delay density), so the seeds cover different corners of the protocol.
+
+At the end the cores meet at a barrier and both check the final value of
+every word. x31 holds the number of failed checks on each core.
 
 Usage: gen_random.py <seed> <ops per core> <out dir>
 """
@@ -17,44 +25,90 @@ import sys
 seed, n_ops, out = int(sys.argv[1]), int(sys.argv[2]), sys.argv[3]
 rng = random.Random(seed)
 
-BLOCKS = [0x300, 0x1300, 0x2300, 0x310]
-FLAG = 0x800
-final = {}
+CONFIGS = {
+    # name: (shared blocks, private blocks for core 0, private blocks for core 1)
+    "one_block":  ([0x0300], [0x1300], [0x2300]),
+    "conflict":   ([0x0300, 0x1300, 0x2300], [0x3300], [0x3310]),
+    "two_index":  ([0x0300, 0x1300, 0x0310, 0x1310], [0x2300], [0x2310]),
+    "spread":     ([0x0300, 0x0340, 0x0380, 0x03C0], [0x1300, 0x1380], [0x1340, 0x13C0]),
+}
+config = list(CONFIGS)[seed % len(CONFIGS)]
+shared, private0, private1 = CONFIGS[config]
+p_store = rng.choice([0.3, 0.5, 0.7])
+p_private = rng.choice([0.0, 0.1, 0.25])
+p_delay = rng.choice([0.0, 0.15, 0.4])
+
+FLAG = [0x0800, 0x0840]         # per-core barrier flags, in their own blocks
+
+words = [b + 4 * w for b in shared for w in range(4)]
+owner = {a: (i % 2) for i, a in enumerate(words)}
+last_written = {a: 0 for a in words}
+last_written.update({b + 4 * w: 0 for b in private0 + private1 for w in range(4)})
+
+label = [0]
+
+
+def new_label():
+    label[0] += 1
+    return f"L{label[0]}"
+
+
+def check_eq(reg, value):
+    ok = new_label()
+    return [f"    li t3, {value}", f"    beq {reg}, t3, {ok}", "    addi x31, x31, 1", f"{ok}:"]
 
 
 def core_program(core):
-    own = [b + 4 * w for b in BLOCKS for w in range(4) if w % 2 == core]
-    every = [b + 4 * w for b in BLOCKS for w in range(4)]
-    lines = []
-    for i in range(n_ops):
-        if rng.random() < 0.5:
-            addr = rng.choice(own)
-            val = rng.randrange(1, 1 << 20)
-            final[addr] = val
-            lines += [f"    li t0, {addr:#x}", f"    li t1, {val}", "    sw t1, 0(t0)"]
+    private = private0 if core == 0 else private1
+    mine = [a for a in words if owner[a] == core]
+    theirs = [a for a in words if owner[a] != core]
+    seen = {a: f"s{2 + i}" for i, a in enumerate(theirs)}   # last value seen, s2..s9
+    assert len(seen) <= 8
+    counter = 0
+    lines = ["    li x31, 0"] + [f"    li {r}, 0" for r in seen.values()]
+
+    for _ in range(n_ops):
+        r = rng.random()
+        if r < p_private:
+            addr = rng.choice(private) + 4 * rng.randrange(4)
+            if rng.random() < 0.5:
+                counter += 1
+                last_written[addr] = counter
+                lines += [f"    li t0, {addr:#x}", f"    li t1, {counter}", "    sw t1, 0(t0)"]
+            else:
+                lines += [f"    li t0, {addr:#x}", "    lw t2, 0(t0)"] + check_eq("t2", last_written[addr])
+        elif rng.random() < p_store:
+            addr = rng.choice(mine)
+            counter += 1
+            last_written[addr] = counter
+            lines += [f"    li t0, {addr:#x}", f"    li t1, {counter}", "    sw t1, 0(t0)"]
         else:
-            addr = rng.choice(every)
+            addr = rng.choice(words)
             lines += [f"    li t0, {addr:#x}", "    lw t2, 0(t0)"]
-        if rng.random() < 0.2:
-            lines += ["    nop"] * rng.randrange(1, 4)
+            if owner[addr] == core:
+                lines += check_eq("t2", last_written[addr])
+            else:
+                ok = new_label()
+                lines += [f"    bgeu t2, {seen[addr]}, {ok}", "    addi x31, x31, 1", f"{ok}:",
+                          f"    mv {seen[addr]}, t2"]
+        if rng.random() < p_delay:
+            lines += ["    nop"] * rng.randrange(1, 6)
     return lines
 
 
-c0 = core_program(0)
-c1 = core_program(1)
+progs = [core_program(0), core_program(1)]
 
-c1 += [f"    li t0, {FLAG:#x}", "    li t1, 1", "    sw t1, 0(t0)",
-       "    li x31, 0", "    li x30, 1", "halt: j halt"]
+for core in (0, 1):
+    me, other = FLAG[core], FLAG[1 - core]
+    wait = new_label()
+    progs[core] += [f"    li t0, {me:#x}", "    li t1, 1", "    sw t1, 0(t0)",       # arrive
+                    f"    li t0, {other:#x}", f"{wait}: lw t1, 0(t0)", f"    beq t1, x0, {wait}"]
+    for addr in words:                                                            # final state
+        progs[core] += [f"    li t0, {addr:#x}", "    lw t2, 0(t0)"] + check_eq("t2", last_written[addr])
+    progs[core] += ["    li x30, 1", "halt: j halt"]
 
-c0 += [f"    li t0, {FLAG:#x}", "wait: lw t1, 0(t0)", "    beq t1, x0, wait", "    li x31, 0"]
-for k, b in enumerate(BLOCKS):
-    for w in range(4):
-        addr = b + 4 * w
-        c0 += [f"    li t0, {addr:#x}", "    lw t1, 0(t0)", f"    li t2, {final.get(addr, 0)}",
-               f"    beq t1, t2, ok_{k}_{w}", "    addi x31, x31, 1", f"ok_{k}_{w}:"]
-c0 += ["    li x30, 1", "halt: j halt"]
-
-for core, prog in ((0, c0), (1, c1)):
+for core in (0, 1):
     with open(f"{out}/rand{seed}_c{core}.s", "w") as f:
-        f.write(f"# Generated by gen_random.py (seed {seed}, core {core})\n")
-        f.write("\n".join(prog) + "\n")
+        f.write(f"# Generated by gen_random.py: seed {seed}, core {core}, config {config}, "
+                f"p_store {p_store}, p_private {p_private}, p_delay {p_delay}\n")
+        f.write("\n".join(progs[core]) + "\n")

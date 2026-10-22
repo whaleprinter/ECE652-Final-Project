@@ -57,10 +57,6 @@
     wire [19:0] snp_tag   = snoop_addr[31:12];
     wire  [7:0] snp_index = snoop_addr[11:4];
 
-    // wire [7:0] active_index = snoop_req ? snp_index : req_index;
-    // Hold the snoop index steady while we are pushing data across the link!
-    wire [7:0] active_index = (snoop_req || link_push_req) ? snp_index : req_index;
-
     wire          dcache_ctrl_we; // change back to reg if needed
     wire [127:0] dcache_ctrl_wdata; // change back to reg if needed
     wire [127:0] dcache_ctrl_rdata;
@@ -130,7 +126,6 @@
 
     // Detect cache hit
     wire tag_match = (tags[req_index] == req_tag);
-    wire hit       = tag_match && (states[req_index] != I);
 
     // Detect snoop hit
     wire is_snoop_match = (tags[snp_index] == snp_tag) && (states[snp_index] != I);
@@ -251,6 +246,16 @@
                                 // GetS: another core wants a read copy
                                 // M → S  (we keep a clean shared copy)
                                 states[snp_index] <= S;
+                            end
+
+                            // We were waiting to write this block back (PutM not granted yet). It just left
+                            // over the link, so the writeback is moot: turn the pending request into the fetch
+                            if (evict_active && snp_index == saved_cpu_addr[11:4]) begin
+                                evict_active <= 0;
+                                bus_put      <= 0;
+                                bus_we       <= saved_cpu_we;
+                                bus_addr     <= saved_cpu_addr;
+                                states[snp_index] <= saved_cpu_we ? IM_D : IS_D;
                             end
                         end
 

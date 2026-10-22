@@ -12,3 +12,4 @@
 *.pb
 .Xil/
 Verilog/tests/build/
+Verilog/sw/build/

@@ -16,7 +16,7 @@ riscv64-unknown-elf-objcopy -O verilog Object_files/test_fact.elf Hex_files/test
 
 echo "Running Dual-Core Simulation..."
 
-iverilog -g2012 -o sim.vvp -D C0_FILE=\"Hex_files/test_sum.hex\" -D C1_FILE=\"Hex_files/test_fact.hex\" autotester_tb.v module_top.v L1_CC.v bus_arbiter.v L1D_cache.v L2_cache.v L1I_cache.v warp_v_core_mul.sv ./sv_url_inc/picorv32_pcpi_div.sv ./sv_url_inc/picorv32_pcpi_fast_mul.sv
+iverilog -g2012 -o sim.vvp -D C0_FILE=\"Hex_files/test_sum.hex\" -D C1_FILE=\"Hex_files/test_fact.hex\" autotester_tb.v module_top.v L1_CC.v bus_arbiter.v L1D_cache.v L2_cache.v L1I_cache.v sync_unit.v warp_v_core_mul.sv ./sv_url_inc/picorv32_pcpi_div.sv ./sv_url_inc/picorv32_pcpi_fast_mul.sv
 
 
 echo "TEST RESULTS:"

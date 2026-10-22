@@ -21,7 +21,7 @@ run_test() {
     riscv64-unknown-elf-objcopy -O verilog Object_files/${base_name}.elf $hex_file
 
     # 2. Compile the Verilog simulation (ADDED -g2012 FLAG HERE!)
-    iverilog -g2012 -D C0_FILE=\"$hex_file\" -D C1_FILE=\"Hex_files/dummy_c1.hex\" autotester_tb.v module_top.v L1_CC.v bus_arbiter.v L1D_cache.v L2_cache.v L1I_cache.v warp_v_core_mul.sv ./sv_url_inc/picorv32_pcpi_div.sv ./sv_url_inc/picorv32_pcpi_fast_mul.sv -o sim.vvp
+    iverilog -g2012 -D C0_FILE=\"$hex_file\" -D C1_FILE=\"Hex_files/dummy_c1.hex\" autotester_tb.v module_top.v L1_CC.v bus_arbiter.v L1D_cache.v L2_cache.v L1I_cache.v sync_unit.v warp_v_core_mul.sv ./sv_url_inc/picorv32_pcpi_div.sv ./sv_url_inc/picorv32_pcpi_fast_mul.sv -o sim.vvp
 
     # 3. Run simulation and capture output
     output=$(vvp sim.vvp | grep "AUTOTEST_C0")

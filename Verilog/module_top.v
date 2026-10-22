@@ -6,6 +6,14 @@
 `ifndef C1_FILE
 `define C1_FILE "Hex_files/matmul_c1.hex"
 `endif
+// Optional data memory image (e.g. the same program image, so .data/.rodata are readable)
+`ifndef MEM_FILE
+`define MEM_FILE ""
+`endif
+
+// Data addresses with bit 31 set are uncached I/O and go to the sync unit
+// (core id, spinlocks, barrier, counters, console); everything else goes
+// through the coherent L1D caches.
 
 module system_top (
     input wire clk,
@@ -162,20 +170,37 @@ module system_top (
     wire [127:0] l2_rdata;
     wire        l2_ready;
 
+    // I/O decode: bit 31 selects the sync unit instead of the L1D
+    wire        c0_io = c0_req && c0_addr[31];
+    wire        c1_io = c1_req && c1_addr[31];
+    wire [31:0] c0_l1_rdata, c1_l1_rdata;
+    wire        c0_l1_stall, c1_l1_stall;
+    wire [31:0] c0_io_rdata, c1_io_rdata;
+    assign c0_rdata = c0_io ? c0_io_rdata : c0_l1_rdata;
+    assign c1_rdata = c1_io ? c1_io_rdata : c1_l1_rdata;
+    assign c0_stall = c0_io ? 1'b0 : c0_l1_stall;
+    assign c1_stall = c1_io ? 1'b0 : c1_l1_stall;
 
+    sync_unit sync (
+        .clk(clk),
+        .reset(reset),
+        .c0_req(c0_io), .c0_we(c0_we), .c0_addr(c0_addr[7:0]), .c0_wdata(c0_wdata), .c0_rdata(c0_io_rdata),
+        .c1_req(c1_io), .c1_we(c1_we), .c1_addr(c1_addr[7:0]), .c1_wdata(c1_wdata), .c1_rdata(c1_io_rdata),
+        .exited(), .c0_exit_code(), .c1_exit_code()
+    );
 
 
     L1_CC core0_l1 (
         .clk(clk),
         .reset(reset),
         // CPU Interface
-        .cpu_req(c0_req),
+        .cpu_req(c0_req && !c0_io),
         .cpu_addr(c0_addr),
         .cpu_we(c0_we),
         .cpu_wdata(c0_wdata),
         .cpu_wmask(c0_wmask),
-        .cpu_rdata(c0_rdata),
-        .cpu_stall(c0_stall),
+        .cpu_rdata(c0_l1_rdata),
+        .cpu_stall(c0_l1_stall),
         // Bus Interface
         .bus_req(c0_bus_req),
         .bus_addr(c0_bus_addr),
@@ -203,13 +228,13 @@ module system_top (
         .clk(clk),
         .reset(reset),
         // CPU Interface
-        .cpu_req(c1_req),
+        .cpu_req(c1_req && !c1_io),
         .cpu_addr(c1_addr),
         .cpu_we(c1_we),
         .cpu_wdata(c1_wdata),
         .cpu_wmask(c1_wmask),
-        .cpu_rdata(c1_rdata),
-        .cpu_stall(c1_stall),
+        .cpu_rdata(c1_l1_rdata),
+        .cpu_stall(c1_l1_stall),
         // Bus Interface
         .bus_req(c1_bus_req),
         .bus_addr(c1_bus_addr),
@@ -276,7 +301,9 @@ module system_top (
     );
 
 
-    L2_cache main_memory (
+    L2_cache #(
+        .INIT_FILE(`MEM_FILE)
+    ) main_memory (
         .clk(clk),
         .reset(reset),
         .req(l2_req),
